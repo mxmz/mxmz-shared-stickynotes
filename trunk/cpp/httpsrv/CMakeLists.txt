@@ -20,6 +20,7 @@ SET( httpsrv_SRCs
     ${SRCBASEROOT}/FFN/cppnet/url.cpp
     ./httpsrv.cpp
     ${SRCBASEROOT}/MM-Exper/deco/deco1.cpp
+    ${SRCBASEROOT}/MM_classes/src/util/sysfuncs.cpp
  )
 
 SET ( MONGO_CXX_DRIVER_PATH 
@@ -46,7 +47,7 @@ INCLUDE_DIRECTORIES(
 
 
 # Linux console
- SET( httpsrv_COMPILE_FLAGS "-D_REENTRANT -std=c++0x -Dlinux " ) 
+ SET( httpsrv_COMPILE_FLAGS "-D_REENTRANT -std=c++0x -Dlinux -Dunix" ) 
  SET( httpsrv_LINK_FLAGS "-pthread" ) 
  SET( httpsrv_LINK_LIBRARIES 
       ${MONGO_CXX_DRIVER_PATH}/libmongoclient.a

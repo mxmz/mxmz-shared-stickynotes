@@ -32,9 +32,9 @@ struct mongo_query_req : public shared_factory<mongo_query_req,boost::shared_ptr
 struct mongo_update_req : public shared_factory<mongo_update_req,boost::shared_ptr> {
             std::string         path;
             mongo::BSONObj      data; 
+            bool                meta;
             int                 tag;
-
-            mongo_update_req() : tag(0) {}
+            mongo_update_req() : meta(false), tag(0) {}
 };
 
 
@@ -42,6 +42,7 @@ const char* name_property = "name";
 const char* pid_property  = "p_id";
 const char* tag_property  = "tag";
 const char* data_property = "data";
+const char* meta_property = "meta";
 
 #define DB_NAME      "test"
 #define COLL_NAME    "StickyNotes"
@@ -140,14 +141,16 @@ struct mongo_update_job {
                     OID id = resolve_path( c.conn(), req->path, true );
 
                     BSONObj command_result;
+
+                    const char* target_update_property = req->meta ? meta_property : data_property;
                     
                     c->runCommand( DB_NAME , BSON (
                                                     "findAndModify" << COLL_NAME <<
                                                     "query"     <<  BSON( "_id" << id << tag_property << req->tag ) <<
                                                     "update"    << BSON(
                                                         "$set"      << BSON( 
-                                                                        data_property   << req->data <<
-                                                                        tag_property    << newtag
+                                                                        target_update_property  << req->data <<
+                                                                        tag_property            << newtag
                                                                 )
                                                         ) <<
                                                     "new" << 1
