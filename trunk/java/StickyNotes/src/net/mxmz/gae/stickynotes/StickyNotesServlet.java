@@ -2,6 +2,7 @@ package net.mxmz.gae.stickynotes;
 
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,22 +11,16 @@ import java.util.Map;
 
 import javax.servlet.http.*;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.Date;
 
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
+
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+
+
+
 
 import net.mxmz.gae.stickynotes.Utils;
 
@@ -76,6 +71,7 @@ public class StickyNotesServlet extends HttpServlet {
 		m.put("name", (String)e.getProperty(Datastore.NAME_PROP) );
 		m.put("folder", pname );
 		m.put("data", Utils.makeGson().fromJson( (String)e.getProperty(Datastore.DATA_PROP), Map.class ) );
+		m.put("meta", Utils.makeGson().fromJson( (String)e.getProperty(Datastore.META_PROP), Map.class ) );
 		m.put("ctime", ((Date)e.getProperty(Datastore.CTIME_PROP) ).getTime()/1000 );
 		m.put("id", e.getProperty(Datastore.ID_PROP) );
 		m.put("pid", e.getProperty(Datastore.PID_PROP) );
@@ -92,7 +88,7 @@ public class StickyNotesServlet extends HttpServlet {
 		ArrayList<HashMap> results= new ArrayList<HashMap>();
 		//HashMap results = new HashMap();
 		String[] patharray = path.split("/") ;
-		List<String> pathlist = Lists.reverse(Arrays.asList( patharray  ) );
+		List<String> pathlist = Arrays.asList( patharray  ) ;
 		Datastore datastore = new Datastore();
 		if ( path.endsWith("/") ) {
 			Datastore.EntityWrap  parent = datastore.getEntity(pathlist, false);
@@ -121,15 +117,24 @@ public class StickyNotesServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+	
 		String path = req.getPathInfo();
-		boolean meta = Integer.getInteger( (String)req.getAttribute("meta") ) > 0;
+		Map<String, String> query = Utils.parseQueryString( req.getQueryString() );
+		String metastr = query.get("meta");
+		boolean meta = false;
+		if ( metastr != null ) {
+			meta = Integer.parseInt(metastr) > 0;
+		}
+		
+		Map<?,?> input = Utils.readJsonBody(req);
+		
 		if ( path == null || path.length() == 0 ) {
 			path = "/PUBLIC";
 		}
 		path = path.substring(1);
 		//String body = Utils.readBody(req);
-		Map<?,?> input = Utils.readJsonBody(req);
-		List<String> pathlist = Lists.reverse(Arrays.asList( path.split("/") ) );
+		
+		List<String> pathlist = Arrays.asList( path.split("/") ) ;
 		Datastore datastore = new Datastore();
 		Datastore.EntityWrap e = datastore.updateEntity(pathlist, input, meta);
 		

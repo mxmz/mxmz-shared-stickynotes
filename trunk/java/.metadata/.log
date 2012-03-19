@@ -276,3 +276,12 @@ java.lang.NullPointerException
 	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+
+!ENTRY org.eclipse.wst.common.project.facet.core 4 0 2012-03-19 19:07:36.487
+!MESSAGE Project facet wst.web has not been defined. It is used in plugin org.eclipse.jst.common.project.facet.core.
+
+!ENTRY org.eclipse.ui 4 4 2012-03-19 19:12:16.268
+!MESSAGE Referenced part does not exist yet: org.eclipse.ui.views.ProblemView.
+
+!ENTRY com.google.appengine.eclipse.core 1 0 2012-03-19 20:04:03.651
+!MESSAGE StickyNotes successfully deployed to Google App Engine
