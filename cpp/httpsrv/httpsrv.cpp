@@ -1,5 +1,7 @@
 
 #include "util/time.hxx"
+#include "util/sysfuncs.h"
+
 #include <iostream>
 #include <fstream>
 #include <stack>
@@ -30,6 +32,9 @@
 #include "mongo/client/connpool.h"
 
 #include "split.hxx"
+
+std::string get_filename_extention ( const std::string& name );
+
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
@@ -48,6 +53,8 @@ using namespace boost::gregorian;
 template< class HttpHandler >
 int http_server_main( short port, int argc, char* argv[] ); 
 
+typedef std::vector< std::string > string_vector_t;
+
 class myhttprequesthandler:
 		public http_request_handler,
 		public boost::enable_shared_from_this<myhttprequesthandler>
@@ -55,13 +62,16 @@ class myhttprequesthandler:
 	boost::asio::io_service& ios_;
 	boost::asio::deadline_timer timer_;
     boost::shared_ptr< async_runner<myhttprequesthandler> > asyncr_;
+    const string_vector_t                 static_paths_;
+    const extension_content_type          ext2type_;
 	public:
 	boost::asio::io_service& get_io_service() { return ios_; }
 
-	myhttprequesthandler( boost::asio::io_service& ios )  // ctor
+	myhttprequesthandler( boost::asio::io_service& ios, string_vector_t&& paths )  // ctor
 		:
 		ios_(ios),
-        timer_(ios)
+        timer_(ios),
+        static_paths_( std::move(paths))
     {
 	}
 
@@ -257,6 +267,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                   pending_connections& conns = updating_clients_;
                   void* key = conns.insert(c);
                   int tag = atoi( uspm["tag"].c_str() );
+                  int meta = atoi( uspm["meta"].c_str() );
                   auto mongoreq = mongo_update_req::make_shared();
                   mem_stor_ptr body = req.body().load();
                   std::string bodystr( std::string(body->data(),body->size()).c_str() );
@@ -265,23 +276,41 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                   boost::trim(bodystr);
                   mongoreq->data = mongo::fromjson( bodystr.c_str() );
                   mongoreq->tag = tag;
+                  mongoreq->meta = meta;
                   cerr << mongoreq->data.toString() << endl;
                   get_async_runner().async_run( mongo_update_job(), &myhttprequesthandler::handle_update_result, mongoreq, key  );
                 }
         }
-        else if ( reqtype == "pages") {
+        else if ( reqtype == "static") {
                 const std::string& filepath = path[2];
-                std::ifstream   in(filepath);
-                httpresponse< std::vector<char> > res;
-                try {
-                    slurp_into(in, res.data.bodyptr->body );
-                    res.data.code = 200;
-                    res.data.reason = "OK";
+                const std::string  ext = get_filename_extention(filepath);
+                bool replied = false;
+                for ( auto i = static_paths_.begin(); i != static_paths_.end(); ++i ) {
+                    std::string fullpath = (*i) + "/" + filepath;
+                    std::ifstream   in(fullpath);
+                    cerr << ext << " : trying " << fullpath << " ...\n";
+                    if ( not in ) {
+                            continue;
+                    }
+                    httpresponse< std::vector<char> > res;
+                    try {
+                        slurp_into(in, res.data.bodyptr->body );
+                        res.data.code = 200;
+                        res.data.reason = "OK";
+                        res.data.bodyptr->ctype = ext2type_.get_content_type(ext);
+                    }
+                    catch( ... ) {
+                    
+                    }
+                    c->async_restart(res);
+                    replied = true;
                 }
-                catch( ... ) {
-                
+                if ( not replied ) {
+                    httpresponse< std::vector<char> > res;
+                    res.data.code = 404;
+                    res.data.reason = "Not Found";
+                    c->async_restart(res);
                 }
-                c->async_restart(res);
         }
 }
 
@@ -368,12 +397,30 @@ template< class HttpHandler >
 int http_server_main( short port, int argc, char* argv[] ) {
     srand( time(0) + getpid() );
 	io_service_wrapper_ptr 	ios = 	make_asio_io_service();
+    string_vector_t doc_paths = split < string_vector_t >(mxm::enviro_default("DOCUMENT_ROOT", ".:..:../.."), is_char<':'>(), 1  );
 	{
 		char port_s[100];
 		snprintf( port_s, 100, "%d", (int)port );
-		boost::shared_ptr<myhttprequesthandler> httphndl( new myhttprequesthandler( ios->io_service() )  );
+		boost::shared_ptr<myhttprequesthandler> httphndl( new myhttprequesthandler( ios->io_service(),  doc_paths   ) );
 		boost::shared_ptr< http_server > httpsrv( new http_server( ios->io_service(), "0.0.0.0", port_s, httphndl ) );
 		ios->run();
 	}
 	return 0;
 }
+
+
+
+
+
+
+std::string get_filename_extention ( const std::string& name ) {
+    auto last_dot = name.find_last_of(".");
+    if ( last_dot != std::string::npos ) {
+            return name.substr( last_dot );
+    } else return "";
+}
+
+
+
+
+

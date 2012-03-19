@@ -43,7 +43,7 @@
 		  data.bodyptr->ctype = "text/plain";
 		  data.reason = "Undefined Response";
 		  data.code = 599;
-		  const char default_body[] = "Default response body\n";
+		  const char default_body[] = "{}\n";
 		  data.bodyptr->body.assign( default_body, default_body + sizeof(default_body) - 1 );
 	  }
 
@@ -74,10 +74,13 @@ void slurp_into( ::std::istream& in, std::vector<char>& data ) {
         data.resize( size + in.gcount()  );
 
     }
-    if ( in.fail() && ! in.eof() ) {
+    if ( in.fail() and not in.eof() ) {
         throw "error while reading file";
     }
 }
+
+
+
 
 /*
 boost::shared_ptr<strbody>
@@ -88,6 +91,42 @@ slurp( ::std::istream& in ) {
 }
 
 */
+
+
+
+
+
+
+class extension_content_type {
+        std::unordered_map<std::string,std::string> map_;
+        const std::string octet_stream_;
+
+        public:
+        extension_content_type() : octet_stream_("application/octet-stream") {
+                map_[".js"] = "text/javascript";
+                map_[".txt"] = "text/plain";
+                map_[".html"] = "text/html";
+                map_[".htm"] = "text/html";
+                map_[".css"] = "text/css";
+                map_[".png"] = "image/png";
+                map_[".gif"] = "image/gif";
+        }
+        const std::string& get_content_type( const std::string& ext ) const {
+                auto i = map_.find(ext);
+                if ( i != map_.end() ) return (*i).second;
+                else return octet_stream_;
+        }
+
+};
+
+
+
+
+
+
+
+
+
 
 
 

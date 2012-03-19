@@ -169,6 +169,21 @@ home/maxim/SRC/MM-Exper/deco/deco1.s:
 .PHONY : home/maxim/SRC/MM-Exper/deco/deco1.s
 
 # target to build an object file
+home/maxim/SRC/MM_classes/src/util/sysfuncs.o:
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM_classes/src/util/sysfuncs.o
+.PHONY : home/maxim/SRC/MM_classes/src/util/sysfuncs.o
+
+# target to preprocess a source file
+home/maxim/SRC/MM_classes/src/util/sysfuncs.i:
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM_classes/src/util/sysfuncs.i
+.PHONY : home/maxim/SRC/MM_classes/src/util/sysfuncs.i
+
+# target to generate assembly for a file
+home/maxim/SRC/MM_classes/src/util/sysfuncs.s:
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM_classes/src/util/sysfuncs.s
+.PHONY : home/maxim/SRC/MM_classes/src/util/sysfuncs.s
+
+# target to build an object file
 httpsrv.o:
 	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/httpsrv.o
 .PHONY : httpsrv.o
@@ -204,6 +219,9 @@ help:
 	@echo "... home/maxim/SRC/MM-Exper/deco/deco1.o"
 	@echo "... home/maxim/SRC/MM-Exper/deco/deco1.i"
 	@echo "... home/maxim/SRC/MM-Exper/deco/deco1.s"
+	@echo "... home/maxim/SRC/MM_classes/src/util/sysfuncs.o"
+	@echo "... home/maxim/SRC/MM_classes/src/util/sysfuncs.i"
+	@echo "... home/maxim/SRC/MM_classes/src/util/sysfuncs.s"
 	@echo "... httpsrv.o"
 	@echo "... httpsrv.i"
 	@echo "... httpsrv.s"
