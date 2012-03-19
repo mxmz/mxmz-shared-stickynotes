@@ -36,10 +36,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/maxim/SRC/FFN/cppnet/tests/httpsrv
+CMAKE_SOURCE_DIR = /home/maxim/SRC/personal/mxmz-shared-stickynotes/trunk/cpp/httpsrv
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/maxim/SRC/FFN/cppnet/tests/httpsrv
+CMAKE_BINARY_DIR = /home/maxim/SRC/personal/mxmz-shared-stickynotes/trunk/cpp/httpsrv
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -66,9 +66,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/maxim/SRC/FFN/cppnet/tests/httpsrv/CMakeFiles /home/maxim/SRC/FFN/cppnet/tests/httpsrv/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/maxim/SRC/personal/mxmz-shared-stickynotes/trunk/cpp/httpsrv/CMakeFiles /home/maxim/SRC/personal/mxmz-shared-stickynotes/trunk/cpp/httpsrv/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/maxim/SRC/FFN/cppnet/tests/httpsrv/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/maxim/SRC/personal/mxmz-shared-stickynotes/trunk/cpp/httpsrv/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -96,91 +96,91 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named mytest
+# Target rules for targets named httpsrv
 
 # Build rule for target.
-mytest: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 mytest
-.PHONY : mytest
+httpsrv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 httpsrv
+.PHONY : httpsrv
 
 # fast build rule for target.
-mytest/fast:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/build
-.PHONY : mytest/fast
+httpsrv/fast:
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/build
+.PHONY : httpsrv/fast
 
 # target to build an object file
 home/maxim/SRC/FFN/cppnet/asio_http_server.o:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.o
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.o
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_http_server.o
 
 # target to preprocess a source file
 home/maxim/SRC/FFN/cppnet/asio_http_server.i:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.i
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.i
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_http_server.i
 
 # target to generate assembly for a file
 home/maxim/SRC/FFN/cppnet/asio_http_server.s:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.s
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_http_server.s
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_http_server.s
 
 # target to build an object file
 home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.o:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.o
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.o
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.o
 
 # target to preprocess a source file
 home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.i:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.i
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.i
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.i
 
 # target to generate assembly for a file
 home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.s:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.s
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.s
 .PHONY : home/maxim/SRC/FFN/cppnet/asio_io_service_wrapper.s
 
 # target to build an object file
 home/maxim/SRC/FFN/cppnet/url.o:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/url.o
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/url.o
 .PHONY : home/maxim/SRC/FFN/cppnet/url.o
 
 # target to preprocess a source file
 home/maxim/SRC/FFN/cppnet/url.i:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/url.i
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/url.i
 .PHONY : home/maxim/SRC/FFN/cppnet/url.i
 
 # target to generate assembly for a file
 home/maxim/SRC/FFN/cppnet/url.s:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/FFN/cppnet/url.s
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/FFN/cppnet/url.s
 .PHONY : home/maxim/SRC/FFN/cppnet/url.s
 
 # target to build an object file
 home/maxim/SRC/MM-Exper/deco/deco1.o:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/MM-Exper/deco/deco1.o
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM-Exper/deco/deco1.o
 .PHONY : home/maxim/SRC/MM-Exper/deco/deco1.o
 
 # target to preprocess a source file
 home/maxim/SRC/MM-Exper/deco/deco1.i:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/MM-Exper/deco/deco1.i
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM-Exper/deco/deco1.i
 .PHONY : home/maxim/SRC/MM-Exper/deco/deco1.i
 
 # target to generate assembly for a file
 home/maxim/SRC/MM-Exper/deco/deco1.s:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/home/maxim/SRC/MM-Exper/deco/deco1.s
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/home/maxim/SRC/MM-Exper/deco/deco1.s
 .PHONY : home/maxim/SRC/MM-Exper/deco/deco1.s
 
 # target to build an object file
 httpsrv.o:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/httpsrv.o
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/httpsrv.o
 .PHONY : httpsrv.o
 
 # target to preprocess a source file
 httpsrv.i:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/httpsrv.i
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/httpsrv.i
 .PHONY : httpsrv.i
 
 # target to generate assembly for a file
 httpsrv.s:
-	$(MAKE) -f CMakeFiles/mytest.dir/build.make CMakeFiles/mytest.dir/httpsrv.s
+	$(MAKE) -f CMakeFiles/httpsrv.dir/build.make CMakeFiles/httpsrv.dir/httpsrv.s
 .PHONY : httpsrv.s
 
 # Help Target
@@ -190,7 +190,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... mytest"
+	@echo "... httpsrv"
 	@echo "... rebuild_cache"
 	@echo "... home/maxim/SRC/FFN/cppnet/asio_http_server.o"
 	@echo "... home/maxim/SRC/FFN/cppnet/asio_http_server.i"

@@ -1,6 +1,6 @@
 PROJECT(httpsrv)
-INCLUDE(../../../../cmake-build-tools/cmake/local_hostname.cmake)
-INCLUDE(../../../cmake-local-config.cmake)
+#INCLUDE(../../../../cmake-build-tools/cmake/local_hostname.cmake)
+#INCLUDE(../../../cmake-local-config.cmake)
 
 SET(Boost_ADDITIONAL_VERSIONS "1.42" )
 #SET(Boost_ADDITIONAL_VERSIONS "1.49" )
@@ -11,13 +11,13 @@ find_package( Boost  COMPONENTS system thread filesystem date_time )
    endif()
 
 
-
+set(  SRCBASEROOT "/home/maxim/SRC" )
 
 #cmake_minimum_required(VERSION 2.4)
 SET( httpsrv_SRCs
-    ../../asio_http_server.cpp
-    ../../asio_io_service_wrapper.cpp
-    ../../url.cpp
+    ${SRCBASEROOT}/FFN/cppnet/asio_http_server.cpp
+    ${SRCBASEROOT}/FFN/cppnet/asio_io_service_wrapper.cpp
+    ${SRCBASEROOT}/FFN/cppnet/url.cpp
     ./httpsrv.cpp
     ${SRCBASEROOT}/MM-Exper/deco/deco1.cpp
  )
@@ -27,14 +27,8 @@ SET ( MONGO_CXX_DRIVER_PATH
     )
 
 INCLUDE_DIRECTORIES( 
-		.. 
-		../include
-		../.. 
-		../../../ 
-		../../../.. 
-		../../../SRC/MM_classes/include 
-		/usr/local/include/boost-${Boost_LIB_VERSION}/ 	
-		/opt/boost/include/boost-${Boost_LIB_VERSION}/ 	
+		/usr/local/include/boost-${Boost_LIB_VERSION} 	
+		/opt/boost/include/boost-${Boost_LIB_VERSION} 	
 		${SRCBASEROOT}/MM_classes 
 		${SRCBASEROOT}/MM_classes/include 
 		${SRCBASEROOT}/MM_classes/src 
