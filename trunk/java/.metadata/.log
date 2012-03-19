@@ -1,0 +1,278 @@
+!SESSION 2012-03-19 18:38:35.983 -----------------------------------------------
+eclipse.buildId=M20120208-0800
+java.version=1.6.0_20
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.equinox.event 2 0 2012-03-19 18:38:37.313
+!MESSAGE [SCR] Found components with duplicated names! Details: 
+Component1 : Component[
+	name = org.eclipse.equinox.event
+	activate = activate
+	deactivate = deactivate
+	modified = 
+	configuration-policy = optional
+	factory = null
+	autoenable = true
+	immediate = false
+	implementation = org.eclipse.equinox.internal.event.EventComponent
+	state = Unsatisfied
+	properties = 
+	serviceFactory = false
+	serviceInterface = [org.osgi.service.event.EventAdmin]
+	references = null
+	located in bundle = org.eclipse.equinox.event_1.2.0.v20100503 [667]
+]
+Component2: Component[
+	name = org.eclipse.equinox.event
+	activate = activate
+	deactivate = deactivate
+	modified = 
+	configuration-policy = optional
+	factory = null
+	autoenable = true
+	immediate = false
+	implementation = org.eclipse.equinox.internal.event.EventComponent
+	state = Unsatisfied
+	properties = 
+	serviceFactory = false
+	serviceInterface = [org.osgi.service.event.EventAdmin]
+	references = null
+	located in bundle = org.eclipse.equinox.event_1.2.100.v20110502 [390]
+]  
+
+!ENTRY com.android.ide.eclipse.ddms 4 0 2012-03-19 18:39:13.920
+!MESSAGE DDMS files not found: /home/maxim/platform-tools/adb /home/maxim/tools/hprof-conv /home/maxim/tools/traceview 
+
+!ENTRY com.google.gdt.eclipse.core 4 0 2012-03-19 18:41:24.198
+!MESSAGE Error while tracking project-level changes from a change in R/
+!STACK 1
+Java Model Exception: Java Model Status [Unbound classpath container: 'App Engine SDK [missing]' in project 'StickyNotes']
+	at org.eclipse.jdt.internal.core.JavaProject.getResolvedClasspath(JavaProject.java:2005)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.isResourceInAnOutputPath(ProjectChangeTimestampTracker.java:121)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.visitDelta(ProjectChangeTimestampTracker.java:162)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.visitDelta(ProjectChangeTimestampTracker.java:169)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.resourceChanged(ProjectChangeTimestampTracker.java:181)
+	at org.eclipse.core.internal.events.NotificationManager$1.run(NotificationManager.java:291)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.core.internal.events.NotificationManager.notify(NotificationManager.java:285)
+	at org.eclipse.core.internal.events.NotificationManager.broadcastChanges(NotificationManager.java:149)
+	at org.eclipse.core.internal.resources.Workspace.broadcastPostChange(Workspace.java:395)
+	at org.eclipse.core.internal.resources.Workspace.endOperation(Workspace.java:1530)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2353)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:118)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+!SUBENTRY 1 org.eclipse.jdt.core 4 963 2012-03-19 18:41:24.198
+!MESSAGE Unbound classpath container: 'App Engine SDK [missing]' in project 'StickyNotes'
+
+!ENTRY com.google.gdt.eclipse.core 4 0 2012-03-19 18:41:25.092
+!MESSAGE Error while tracking project-level changes from a change in R/
+!STACK 1
+Java Model Exception: Java Model Status [Unbound classpath container: 'App Engine SDK [missing]' in project 'StickyNotes']
+	at org.eclipse.jdt.internal.core.JavaProject.getResolvedClasspath(JavaProject.java:2005)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.isResourceInAnOutputPath(ProjectChangeTimestampTracker.java:121)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.visitDelta(ProjectChangeTimestampTracker.java:162)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.visitDelta(ProjectChangeTimestampTracker.java:169)
+	at com.google.gdt.eclipse.core.projects.ProjectChangeTimestampTracker.resourceChanged(ProjectChangeTimestampTracker.java:181)
+	at org.eclipse.core.internal.events.NotificationManager$1.run(NotificationManager.java:291)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.core.internal.events.NotificationManager.notify(NotificationManager.java:285)
+	at org.eclipse.core.internal.events.NotificationManager.broadcastChanges(NotificationManager.java:149)
+	at org.eclipse.core.internal.resources.Workspace.broadcastPostChange(Workspace.java:395)
+	at org.eclipse.core.internal.resources.Workspace.endOperation(Workspace.java:1530)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:45)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+!SUBENTRY 1 org.eclipse.jdt.core 4 963 2012-03-19 18:41:25.092
+!MESSAGE Unbound classpath container: 'App Engine SDK [missing]' in project 'StickyNotes'
+
+!ENTRY com.google.gdt.eclipse.suite 1 0 2012-03-19 18:41:29.391
+!MESSAGE Registering: com.google.appengine.eclipse.sdkbundle_1.6.3.v201202290255r37
+
+!ENTRY com.google.gdt.eclipse.suite 1 0 2012-03-19 18:41:31.183
+!MESSAGE Registering: com.google.gwt.eclipse.sdkbundle_2.4.0.v201202290255-rel-r37
+
+!ENTRY com.google.gdt.eclipse.core 1 0 2012-03-19 18:41:33.991
+!MESSAGE Scheduled rebuild of project StickyNotes because of plugin update (current version: 2.5.2.v201202290255-rel-r37)
+
+!ENTRY org.eclipse.jdt.core 4 977 2012-03-19 18:41:34.422
+!MESSAGE Build path contains duplicate entry: 'com.google.appengine.eclipse.core.GAE_CONTAINER' for project 'StickyNotes'
+
+!ENTRY org.eclipse.jdt.ui 4 2 2012-03-19 18:46:58.245
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jdt.ui".
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.jdt.internal.core.ClassFile.validateClassFile(ClassFile.java:611)
+	at org.eclipse.jdt.internal.core.ClassFile.validateExistence(ClassFile.java:824)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:244)
+	at org.eclipse.jdt.internal.core.SourceRefElement.generateInfos(SourceRefElement.java:107)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:518)
+	at org.eclipse.jdt.internal.core.BinaryType.getElementInfo(BinaryType.java:286)
+	at org.eclipse.jdt.internal.core.JavaElement.getElementInfo(JavaElement.java:241)
+	at org.eclipse.jdt.internal.core.BinaryType.getFlags(BinaryType.java:318)
+	at org.eclipse.jdt.internal.core.SearchableEnvironmentRequestor.acceptType(SearchableEnvironmentRequestor.java:115)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypesInBinaryPackage(NameLookup.java:1052)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypes(NameLookup.java:986)
+	at org.eclipse.jdt.internal.core.NameLookup.findAllTypes(NameLookup.java:327)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypes(NameLookup.java:962)
+	at org.eclipse.jdt.internal.core.SearchableEnvironment.findTypes(SearchableEnvironment.java:641)
+	at org.eclipse.jdt.internal.core.SearchableEnvironment.findTypes(SearchableEnvironment.java:474)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.findTypesAndPackages(CompletionEngine.java:10527)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.completionOnSingleNameReference(CompletionEngine.java:3197)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.complete(CompletionEngine.java:1651)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.complete(CompletionEngine.java:1875)
+	at org.eclipse.jdt.internal.core.Openable.codeComplete(Openable.java:130)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:357)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:351)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:339)
+	at org.eclipse.jdt.internal.ui.text.correction.SimilarElementsRequestor.process(SimilarElementsRequestor.java:141)
+	at org.eclipse.jdt.internal.ui.text.correction.SimilarElementsRequestor.findSimilarElement(SimilarElementsRequestor.java:88)
+	at org.eclipse.jdt.internal.ui.text.correction.UnresolvedElementsSubProcessor.addSimilarTypeProposals(UnresolvedElementsSubProcessor.java:584)
+	at org.eclipse.jdt.internal.ui.text.correction.UnresolvedElementsSubProcessor.getVariableProposals(UnresolvedElementsSubProcessor.java:236)
+	at org.eclipse.jdt.internal.ui.text.correction.QuickFixProcessor.process(QuickFixProcessor.java:315)
+	at org.eclipse.jdt.internal.ui.text.correction.QuickFixProcessor.getCorrections(QuickFixProcessor.java:270)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionCollector.safeRun(JavaCorrectionProcessor.java:378)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionProcessorAccess.run(JavaCorrectionProcessor.java:339)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionProcessorAccess.process(JavaCorrectionProcessor.java:335)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.collectCorrections(JavaCorrectionProcessor.java:468)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.collectProposals(JavaCorrectionProcessor.java:280)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.computeQuickAssistProposals(JavaCorrectionProcessor.java:242)
+	at org.eclipse.jface.text.quickassist.QuickAssistAssistant$ContentAssistProcessor.computeCompletionProposals(QuickAssistAssistant.java:75)
+	at org.eclipse.jface.text.contentassist.ContentAssistant.computeCompletionProposals(ContentAssistant.java:1830)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.computeProposals(CompletionProposalPopup.java:556)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.access$16(CompletionProposalPopup.java:553)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup$2.run(CompletionProposalPopup.java:488)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.showProposals(CompletionProposalPopup.java:482)
+	at org.eclipse.jface.text.contentassist.ContentAssistant.showPossibleCompletions(ContentAssistant.java:1656)
+	at org.eclipse.jface.text.quickassist.QuickAssistAssistant.showPossibleQuickAssists(QuickAssistAssistant.java:128)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionAssistant.showPossibleQuickAssists(JavaCorrectionAssistant.java:193)
+	at org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor$AdaptedSourceViewer.doOperation(CompilationUnitEditor.java:195)
+	at org.eclipse.jdt.internal.ui.javaeditor.JavaSelectAnnotationRulerAction.runWithEvent(JavaSelectAnnotationRulerAction.java:98)
+	at org.eclipse.jdt.internal.ui.javaeditor.JavaSelectAnnotationRulerAction.run(JavaSelectAnnotationRulerAction.java:79)
+	at org.eclipse.ui.texteditor.AbstractRulerActionDelegate.run(AbstractRulerActionDelegate.java:103)
+	at org.eclipse.ui.internal.handlers.ActionDelegateHandlerProxy.execute(ActionDelegateHandlerProxy.java:289)
+	at org.eclipse.core.commands.Command.executeWithChecks(Command.java:476)
+	at org.eclipse.core.commands.ParameterizedCommand.executeWithChecks(ParameterizedCommand.java:508)
+	at org.eclipse.ui.actions.ContributedAction.runWithEvent(ContributedAction.java:185)
+	at org.eclipse.ui.internal.actions.CommandAction.run(CommandAction.java:171)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$14.triggerAction(AbstractTextEditor.java:3066)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$14.access$1(AbstractTextEditor.java:3060)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$15.run(AbstractTextEditor.java:3079)
+	at org.eclipse.swt.widgets.Display.timerProc(Display.java:4154)
+	at org.eclipse.swt.internal.gtk.OS._g_main_context_iteration(Native Method)
+	at org.eclipse.swt.internal.gtk.OS.g_main_context_iteration(OS.java:2276)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3207)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+
+!ENTRY org.eclipse.jdt.ui 4 4 2012-03-19 18:46:58.286
+!MESSAGE An error occurred while computing quick fixes. Check log for details.
+!SUBENTRY 1 org.eclipse.jdt.ui 4 0 2012-03-19 18:46:58.286
+!MESSAGE Exception while processing quick fixes or quick assists
+!SUBENTRY 2 org.eclipse.jdt.ui 4 4 2012-03-19 18:46:58.286
+!MESSAGE Exception while processing quick fixes or quick assists
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.jdt.internal.core.ClassFile.validateClassFile(ClassFile.java:611)
+	at org.eclipse.jdt.internal.core.ClassFile.validateExistence(ClassFile.java:824)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:244)
+	at org.eclipse.jdt.internal.core.SourceRefElement.generateInfos(SourceRefElement.java:107)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:518)
+	at org.eclipse.jdt.internal.core.BinaryType.getElementInfo(BinaryType.java:286)
+	at org.eclipse.jdt.internal.core.JavaElement.getElementInfo(JavaElement.java:241)
+	at org.eclipse.jdt.internal.core.BinaryType.getFlags(BinaryType.java:318)
+	at org.eclipse.jdt.internal.core.SearchableEnvironmentRequestor.acceptType(SearchableEnvironmentRequestor.java:115)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypesInBinaryPackage(NameLookup.java:1052)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypes(NameLookup.java:986)
+	at org.eclipse.jdt.internal.core.NameLookup.findAllTypes(NameLookup.java:327)
+	at org.eclipse.jdt.internal.core.NameLookup.seekTypes(NameLookup.java:962)
+	at org.eclipse.jdt.internal.core.SearchableEnvironment.findTypes(SearchableEnvironment.java:641)
+	at org.eclipse.jdt.internal.core.SearchableEnvironment.findTypes(SearchableEnvironment.java:474)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.findTypesAndPackages(CompletionEngine.java:10527)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.completionOnSingleNameReference(CompletionEngine.java:3197)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.complete(CompletionEngine.java:1651)
+	at org.eclipse.jdt.internal.codeassist.CompletionEngine.complete(CompletionEngine.java:1875)
+	at org.eclipse.jdt.internal.core.Openable.codeComplete(Openable.java:130)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:357)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:351)
+	at org.eclipse.jdt.internal.core.CompilationUnit.codeComplete(CompilationUnit.java:339)
+	at org.eclipse.jdt.internal.ui.text.correction.SimilarElementsRequestor.process(SimilarElementsRequestor.java:141)
+	at org.eclipse.jdt.internal.ui.text.correction.SimilarElementsRequestor.findSimilarElement(SimilarElementsRequestor.java:88)
+	at org.eclipse.jdt.internal.ui.text.correction.UnresolvedElementsSubProcessor.addSimilarTypeProposals(UnresolvedElementsSubProcessor.java:584)
+	at org.eclipse.jdt.internal.ui.text.correction.UnresolvedElementsSubProcessor.getVariableProposals(UnresolvedElementsSubProcessor.java:236)
+	at org.eclipse.jdt.internal.ui.text.correction.QuickFixProcessor.process(QuickFixProcessor.java:315)
+	at org.eclipse.jdt.internal.ui.text.correction.QuickFixProcessor.getCorrections(QuickFixProcessor.java:270)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionCollector.safeRun(JavaCorrectionProcessor.java:378)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionProcessorAccess.run(JavaCorrectionProcessor.java:339)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor$SafeCorrectionProcessorAccess.process(JavaCorrectionProcessor.java:335)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.collectCorrections(JavaCorrectionProcessor.java:468)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.collectProposals(JavaCorrectionProcessor.java:280)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor.computeQuickAssistProposals(JavaCorrectionProcessor.java:242)
+	at org.eclipse.jface.text.quickassist.QuickAssistAssistant$ContentAssistProcessor.computeCompletionProposals(QuickAssistAssistant.java:75)
+	at org.eclipse.jface.text.contentassist.ContentAssistant.computeCompletionProposals(ContentAssistant.java:1830)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.computeProposals(CompletionProposalPopup.java:556)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.access$16(CompletionProposalPopup.java:553)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup$2.run(CompletionProposalPopup.java:488)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.jface.text.contentassist.CompletionProposalPopup.showProposals(CompletionProposalPopup.java:482)
+	at org.eclipse.jface.text.contentassist.ContentAssistant.showPossibleCompletions(ContentAssistant.java:1656)
+	at org.eclipse.jface.text.quickassist.QuickAssistAssistant.showPossibleQuickAssists(QuickAssistAssistant.java:128)
+	at org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionAssistant.showPossibleQuickAssists(JavaCorrectionAssistant.java:193)
+	at org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor$AdaptedSourceViewer.doOperation(CompilationUnitEditor.java:195)
+	at org.eclipse.jdt.internal.ui.javaeditor.JavaSelectAnnotationRulerAction.runWithEvent(JavaSelectAnnotationRulerAction.java:98)
+	at org.eclipse.jdt.internal.ui.javaeditor.JavaSelectAnnotationRulerAction.run(JavaSelectAnnotationRulerAction.java:79)
+	at org.eclipse.ui.texteditor.AbstractRulerActionDelegate.run(AbstractRulerActionDelegate.java:103)
+	at org.eclipse.ui.internal.handlers.ActionDelegateHandlerProxy.execute(ActionDelegateHandlerProxy.java:289)
+	at org.eclipse.core.commands.Command.executeWithChecks(Command.java:476)
+	at org.eclipse.core.commands.ParameterizedCommand.executeWithChecks(ParameterizedCommand.java:508)
+	at org.eclipse.ui.actions.ContributedAction.runWithEvent(ContributedAction.java:185)
+	at org.eclipse.ui.internal.actions.CommandAction.run(CommandAction.java:171)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$14.triggerAction(AbstractTextEditor.java:3066)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$14.access$1(AbstractTextEditor.java:3060)
+	at org.eclipse.ui.texteditor.AbstractTextEditor$15.run(AbstractTextEditor.java:3079)
+	at org.eclipse.swt.widgets.Display.timerProc(Display.java:4154)
+	at org.eclipse.swt.internal.gtk.OS._g_main_context_iteration(Native Method)
+	at org.eclipse.swt.internal.gtk.OS.g_main_context_iteration(OS.java:2276)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3207)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)

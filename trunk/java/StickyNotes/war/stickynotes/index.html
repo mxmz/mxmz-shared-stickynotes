@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Hello App Engine</title>
+  </head>
+
+  <body>
+    <h1>Hello Channel</h1>
+    
+    <input type=text id="input-channel-name" size=20 value="/pippo/" >
+    <button id="button-setup-channel">setup</button>
+    <pre id='json'>
+    
+    
+    </pre>
+    
+	
+    <script>
+    
+    function onOpen(arg) {
+    	alert("onOpen:" + arg);
+    }
+    
+    function onMessage(arg) {
+    	//alert("onMessage" + arg.data);
+    	loadStickyNotes( $("#input-channel-name").val() );
+    }
+    
+    
+    function onClose(arg) {
+    	alert("onClose" + arg );
+    }
+    
+    function onError(arg) {
+    	alert("onError" + arg.description);
+    }
+    
+    var socket = null;
+    
+    function openChannel(token) {
+     var channel = new goog.appengine.Channel(token);
+     if ( socket ) {
+     	socket.close();
+     }
+     socket = channel.open();
+     socket.onopen = onOpen;
+     socket.onmessage = onMessage;
+     socket.onerror = onError;
+     socket.onclose = onClose;
+     
+    }
+    
+    function setupChannel(arg) {
+      	var channelId = arg;
+      	var xhr = new XMLHttpRequest();
+    	xhr.onreadystatechange  =  function()
+                                {
+                                        if( xhr.readyState == 4 && xhr.status == 200)
+                                        {
+                                        	openChannel(xhr.responseText); 
+                                        }
+                                };
+                                
+    	xhr.open('GET', "/stickynotes/channel" + channelId, true);
+    	xhr.send();
+    }
+    
+    function loadStickyNotes(arg) { 
+        jQuery.getJSON( "/stickynotes/db" + arg , {}, function(data) {
+        		$("#json").text( JSON.stringify(data, null, 10 ) );
+        } );
+    }
+    
+    </script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/json2.js"></script>
+    <script type="text/javascript" >
+    	$(function() {
+    		$("#button-setup-channel").click( function() {
+    				setupChannel( $("#input-channel-name").val() ); 
+    				loadStickyNotes( $("#input-channel-name").val() );
+    			} );
+    	
+    	} );
+    	
+    	
+    </script>
+    
+  </body>
+</html>
