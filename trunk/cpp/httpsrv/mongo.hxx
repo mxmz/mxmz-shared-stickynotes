@@ -60,14 +60,14 @@ struct mongo_query_job {
                 try {
                     ScopedDbConnection c(database_hostname);
                     OID id = resolve_path( c.conn(), req->path, true );
-                    bool childquery = req->path.size() && *(req->path.rbegin()) == '/';
+                    bool childquery = req->path.size() and *(req->path.rbegin()) == '/';
                     auto_ptr<DBClientCursor> cursor =
                         childquery ? 
                         c->query( collection, QUERY( pid_property << id ) , 50, req->skip   )
                         :
                         c->query( collection, QUERY(  "_id" << id ), 50, req->skip   );
 
-                    while( cursor.get() && cursor->more() ) {
+                    while( cursor.get() and cursor->more() ) {
                           results.push_back( cursor->next().getOwned() );
                     }
                     c.done();
