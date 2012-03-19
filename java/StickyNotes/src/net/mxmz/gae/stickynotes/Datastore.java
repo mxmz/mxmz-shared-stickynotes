@@ -106,47 +106,36 @@ public class Datastore {
 	}
 
 	public EntityWrap getEntity( List<String> path, boolean autoinsert )
-	{		
-		if ( path.size() == 1 ) {
-			String name = path.get(0);
+	{	
+		EntityWrap current = null;
+		
+		for ( int i = 0 ; i < path.size(); ++i ) {
+			String name = path.get(i);
+			String pid = null;
 			Query q = new Query(KIND_NAME);
 			q.addFilter( NAME_PROP, Query.FilterOperator.EQUAL, name );
-			PreparedQuery pq = this.datastore.prepare(q);
-			Entity e = pq.asSingleEntity();
-			if ( e == null && autoinsert ) {
-				e = 	new Entity( KIND_NAME);
-				Date now = new Date();
-				e.setProperty(NAME_PROP, path.get(0) );
-				e.setProperty(CTIME_PROP, now);
-				e.setProperty(ID_PROP, java.util.UUID.randomUUID().toString() );
-				e.setProperty(PID_PROP, null );
-				this.datastore.put(e);
+			if ( current != null ) {
+				pid = (String)current.entity.getProperty(ID_PROP);
+				q.addFilter( PID_PROP, Query.FilterOperator.EQUAL, pid);
+
 			}
-			return new EntityWrap(e,null);
-		} else {
-			String name = path.get(0);
-			EntityWrap parent = this.getEntity( path.subList(1, path.size() ), autoinsert );
-			String pid = (String)parent.entity.getProperty(ID_PROP);
-			Query q = new Query(KIND_NAME);
-			q.addFilter( NAME_PROP, Query.FilterOperator.EQUAL, name );
-			q.addFilter( PID_PROP, Query.FilterOperator.EQUAL, pid);
 			PreparedQuery pq = this.datastore.prepare(q);
 			Entity e = pq.asSingleEntity();
 
 			if ( e == null && autoinsert ) {
 				e = new Entity( KIND_NAME);
 				Date now = new Date();
-				e.setProperty(NAME_PROP, path.get(0) );
+				e.setProperty(NAME_PROP, name );
 				e.setProperty(CTIME_PROP, now);
 				e.setProperty(ID_PROP, java.util.UUID.randomUUID().toString() );
 				e.setProperty(PID_PROP, pid );
 				this.datastore.put(e);
 			}
-			return new EntityWrap(e,parent);
-
+			current = new EntityWrap(e,current);
 		}
+		return current;
 	}
-
+		
 }
 
 

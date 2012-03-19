@@ -208,13 +208,13 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
 	    uri_string_pairs_t usp(uspm);
 	    usp.parse( req.query_string().data(), req.query_string().size() );
 
-        auto path =  split< std::vector<std::string> >(  req.path(), is_slash(), 2, 2 );
-        const std::string& reqtype = path[0];
+        auto path =  split< std::vector<std::string> >(  req.path(), is_slash(), 3, 3 );
+        const std::string& reqtype = path[1];
         const std::string& method =  c->request().method();
-        LOG << method << " " << path[0] << " / " << path[1] << " ? " << req.query_string() << endl;
+        LOG << method << " " << path[1] << " / " << path[2] << " ? " << req.query_string() << endl;
         if ( reqtype == "db" ) {
                 cerr << path.size() << endl;
-                const std::string& dn = path[1];
+                const std::string& dn = path[2];
                 if ( method == "GET") {
                     int idx = atoi( uspm["skip"].c_str() );
                     int wait = atoi( uspm["wait"].c_str() );
