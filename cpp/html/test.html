@@ -12,9 +12,13 @@
   <style>
   
 .stickynote {
-        width:  100px;
-        height: 100px;
-        border: 1px solid yellow;
+        width:  200px;
+        height: 200px;
+        border-top: 1px solid yellow;
+        border-left: 1px solid yellow;
+        border-bottom: 2px solid gray;
+        border-right: 1px solid gray;
+
         padding: 10px;
         background: #FFFFAA;
 }
@@ -44,9 +48,11 @@
 
 
     <script>
-    function updateStickyNotes(data)  {
+    function updateStickyNotes(data, folder)  {
 
             $(data).each(function() {
+                                var name = this.name;
+                                var tag = this.tag;
                                 var id = "stickynote-" + this.name;
                                 var el = $("#"+id);
                                 if ( el.length == 0 ) {
@@ -55,11 +61,15 @@
                                     el.addClass("stickynote")
                 					$('#draggables').append( el ); 
                                     el.draggable();
-                                    el.bind( "dragstop", function(event, ui) {
-
-                                    }); 
                                 }
                                 el.html( this.data.text );
+                                el.unbind("dragstop");
+                                el.bind( "dragstop", function(event, ui) {
+                                    storePosition( folder, name, tag, ui.offset.left, ui.offset.top );
+                                }); 
+                                if ( this.meta && this.meta.x && this.meta.y ) {
+                                    el.offset( { top: this.meta.y, left: this.meta.x });
+                                }
                             }
                );
 
@@ -74,8 +84,7 @@
 
 
     var xhr = null;
-    function setupChannel(arg, observeTag ) {
-      	var channelId = arg;
+    function setupChannel(folder, observeTag ) {
         if ( xhr ) {
                 xhr.abort();
         }
@@ -85,21 +94,31 @@
                                         if( xhr.readyState == 4 && xhr.status == 200)
                                         {
                                                     var newtag = parseInt(xhr.responseText);
-                                                    setupChannel( channelId, newtag );
+                                                    setupChannel( folder, newtag );
                                                     if ( newtag != observeTag ) {
-        				                                loadStickyNotes( channelId );
+        				                                loadStickyNotes( folder );
                                                     }
                                         }
                                 };
                                 
-    	xhr.open('GET', "../../db" + channelId + "?observe=1&tag="+observeTag, true);
+    	xhr.open('GET', "../../db/" + folder + "/" + "?observe=1&tag="+observeTag, true);
     	xhr.send();
     }
+
+    function storePosition( folder, name, tag, x, y ) {
+            var body = JSON.stringify( {
+                        x: x,
+                        y: y
+            });
+        jQuery.post( "../../db/" + folder + "/" + name + "?meta=1&tag=" + tag, body, function(data) {
+        } );
     
-    function loadStickyNotes(arg) { 
-        jQuery.getJSON( "../../db" + arg , {}, function(data) {
+    }
+    
+    function loadStickyNotes(folder) { 
+        jQuery.getJSON( "../../db/" + folder + "/" , {}, function(data) {
         		$("#json").text( JSON.stringify(data, null, 10 ) );
-                updateStickyNotes(data);
+                updateStickyNotes(data,folder);
         } );
     }
     
