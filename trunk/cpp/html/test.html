@@ -25,6 +25,8 @@
         padding: 10px;
         background: #FFFFAA;
         cursor: pointer;
+
+
 }
 
 .stickynote div.text {
@@ -32,6 +34,13 @@
         height: 180px;
         font-family: 'Sunshiney', serif;
         font-size: 20px;
+
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 }
 
 .stickynote div.edit {
@@ -57,7 +66,15 @@ button {
     background: #FFAAAA;
 }
 
-.hidden { display: none };
+.hidden { display: none }
+
+
+div.toolbar {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: gray;
+}
 
   </style>
   
@@ -66,8 +83,12 @@ button {
 
   <body>
     
-   <input type=text id="input-channel-name" size=20 value="/pippo/" >
-   <button id="button-setup-channel">setup</button>
+  <div class='toolbar'>
+   <button id="button-setup-channel">New Note</button>
+   &nbsp;
+   <button id="button-setup-channel">select</button>
+   <input type=text id="input-channel-name" size=20 value="" >
+  </div>
    <div class='hidden'>
     <div id='stickynote-sample' class='stickynote' >
         <div class='text'>
@@ -98,15 +119,16 @@ button {
 
     <script>
     var current_folder;
-    var current_tags = {};
+    var current_objects = {};
     function updateStickyNotes(data)  {
-            var found_tags = {};
+            var found_objects = {};
 
             $(data).each(function() {
                                 var name = this.name;
                                 var tag = this.tag;
-                                found_tags[name] = tag;
-                                if ( tag == current_tags[name] ) { return;  }
+                                found_objects[name] = this;
+                                var current = current_objects[name]
+                                if ( current && tag == current.tag ) { return;  }
                                 var id = "stickynote-" + this.name;
                                 var el = $("#"+id);
                                 if ( el.length == 0 ) {
@@ -142,16 +164,15 @@ button {
                                 if ( this.meta && this.meta.x && this.meta.y ) {
                                     el.offset( { top: this.meta.y, left: this.meta.x });
                                 }
-                                current_tags[name] = tag;
                             }
                );
-               for ( var n in current_tags ) {
-                       if ( ! found_tags[n] ) {
+               for ( var n in current_objects ) {
+                       if ( ! found_objects[n] ) {
                             $("#"+"stickynote-"+n).remove();
-                            delete current_tags[n];
+                            delete current_objects[n];
                        }
                }
-               current_tags = found_tags;
+               current_objects = found_objects;
 
     
    }
@@ -174,13 +195,13 @@ button {
                                         if( xhr.readyState == 4 )  {
                                                if ( xhr.status == 200 ) {
                                                     var newtag = parseInt(xhr.responseText);
-                                                    setupChannel( current_folder, newtag );
+                                                    setupChannel( newtag );
                                                     if ( newtag != observeTag ) {
-        				                                loadStickyNotes( current_folder );
+        				                                fetchStickyNotes();
                                                     }
-                                            } else {
+                                            } else if (xhr.status != 0 )  {
                                                 setTimeout( function() {
-                                                            setupChannel( current_folder, observeTag );
+                                                            setupChannel( observeTag );
                                                                 }, 5000 )
                                             }
                                         }
@@ -209,7 +230,7 @@ button {
     
     }
     
-    function loadStickyNotes() { 
+    function fetchStickyNotes() { 
         jQuery.getJSON( "../../db/" + current_folder + "/" , {}, function(data) {
         		$("#json").text( JSON.stringify(data, null, 10 ) );
                 updateStickyNotes(data);
@@ -225,12 +246,14 @@ button {
     		$("#button-setup-channel").click( function() {
     				current_folder =  $("#input-channel-name").val(); 
     				setupChannel( 1 ); 
-    				loadStickyNotes();
+    				fetchStickyNotes();
                     setHashValue("path", current_folder );
     			} );
             current_folder =  getHashValueDefault("path", "root") ;
     	    $("#input-channel-name").val( current_folder );
-    		$("#button-setup-channel").click();
+            setTimeout(  function() {
+        		$("#button-setup-channel").click();
+                }, 0 );
     	} );
     	
     	

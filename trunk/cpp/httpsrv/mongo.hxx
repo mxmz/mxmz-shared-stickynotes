@@ -21,8 +21,18 @@ int random_number() { return (100000000) + ( rand() % (900000000) ); }
     typedef is_char<'/'>    is_slash;
 
 typedef std::list< mongo::BSONObj > mongo_results_t;
+struct mongo_query_result {
+        mongo_results_t data;
+        int             code;
 
-typedef boost::shared_ptr< mongo_results_t > mongo_results_ptr;
+        mongo_query_result() : code(500) {} 
+        mongo_query_result( mongo_results_t&& data, int code ) 
+                    :   
+                            data(std::move(data)),
+                            code(code) {} 
+};
+
+typedef boost::shared_ptr< mongo_query_result > mongo_results_ptr;
 
 struct mongo_query_req : public shared_factory<mongo_query_req,boost::shared_ptr> {
             std::string         path;
@@ -51,35 +61,40 @@ const char* collection = DB_NAME "." COLL_NAME;
 
 const char* database_hostname = "localhost";
 
-mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, bool autovivify );
+mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth );
 
 struct mongo_query_job {
         mongo_results_ptr operator()( const mongo_query_req::shared_ptr& req ) {
                 using namespace mongo;
                 mongo_results_t results;
+                int code = 200;
                 try {
                     ScopedDbConnection c(database_hostname);
-                    OID id = resolve_path( c.conn(), req->path, true );
-                    bool childquery = req->path.size() and *(req->path.rbegin()) == '/';
-                    auto_ptr<DBClientCursor> cursor =
-                        childquery ? 
-                        c->query( collection, QUERY( pid_property << id ) , 50, req->skip   )
-                        :
-                        c->query( collection, QUERY(  "_id" << id ), 50, req->skip   );
+                    OID id = resolve_path( c.conn(), req->path, UINT_MAX );
+                    if ( id != OID() ) {
+                        bool childquery = req->path.size() and *(req->path.rbegin()) == '/';
+                        auto_ptr<DBClientCursor> cursor =
+                            childquery ? 
+                            c->query( collection, QUERY( pid_property << id ) , 50, req->skip   )
+                            :
+                                c->query( collection, QUERY(  "_id" << id ), 50, req->skip   );
 
-                    while( cursor.get() and cursor->more() ) {
-                          results.push_back( cursor->next().getOwned() );
+                        while( cursor.get() and cursor->more() ) {
+                              results.push_back( cursor->next().getOwned() );
+                        }
+                    } else {
+                            code = 404;
                     }
                     c.done();
                   } catch( DBException &e ) {
                     cerr << "caught " << e.what() << endl;
                   }
-                  return mongo_results_ptr( new mongo_results_t( std::move(results) ) );
+                  return mongo_results_ptr( new mongo_query_result( std::move(results), code ) );
         }
 
 };
 
-mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, bool autovivify )  {
+mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth )  {
             using namespace mongo;
 
             auto path =  split< std::vector<std::string> >(  pathstr, is_slash(), 1 );
@@ -101,25 +116,31 @@ mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, boo
                                             ) 
                                     );
                     if (not o.getObjectID(id)	) {
-                        BSONObj command_result;
-                        c.runCommand( DB_NAME , BSON (
-                                                    "findAndModify" << COLL_NAME <<
-                                                    "query"     <<  BSON( pid_property << pid << name_property << name ) <<
-                                                    "new"       << 1 <<
-                                                    "upsert"    << 1 <<
-                                                    "update"    << BSON(
-                                                        "$set"      << BSON( 
-                                                                    pid_property << pid <<
-                                                                    name_property << name 
-                                                                ) <<
-                                                                "$inc" << BSON( tag_property << 0 )
-                                                        )  
-                                            ),
-                                    command_result ); 
+                        if ( i >=  autovivify_min_depth ) {
+                                BSONObj command_result;
+                                c.runCommand( DB_NAME , BSON (
+                                                            "findAndModify" << COLL_NAME <<
+                                                            "query"     <<  BSON( pid_property << pid << name_property << name ) <<
+                                                            "new"       << 1 <<
+                                                            "upsert"    << 1 <<
+                                                            "update"    << BSON(
+                                                                "$set"      << BSON( 
+                                                                            pid_property << pid <<
+                                                                            name_property << name 
+                                                                        ) <<
+                                                                        "$inc" << BSON( tag_property << 0 )
+                                                                )  
+                                                    ),
+                                            command_result ); 
 
-                        cerr << "update: "<< command_result.toString() << endl;
-                        command_result["value"].Obj().getObjectID(id);
+                                cerr << "update: "<< command_result.toString() << endl;
+                                command_result["value"].Obj().getObjectID(id);
+
+                            } else {
+                                return OID();
+                            }
                     }
+
                     pid = id.OID();
 
                     cerr << "name:" << name << " : " << pid << endl;
@@ -133,18 +154,21 @@ struct mongo_update_job {
         mongo_results_ptr operator()( const mongo_update_req::shared_ptr& req,  void* key ) {
                 using namespace mongo;
                 mongo_results_t results;
+                int code = 200;
                 cerr << req->path << endl;
                 int newtag = random_number();
                 try {
                     ScopedDbConnection c(database_hostname);
 
-                    OID id = resolve_path( c.conn(), req->path, true );
+                    OID id = resolve_path( c.conn(), req->path, 1 );
 
-                    BSONObj command_result;
+                    if ( id != OID() ) {
 
-                    const char* target_update_property = req->meta ? meta_property : data_property;
+                        BSONObj command_result;
+
+                        const char* target_update_property = req->meta ? meta_property : data_property;
                     
-                    c->runCommand( DB_NAME , BSON (
+                        c->runCommand( DB_NAME , BSON (
                                                     "findAndModify" << COLL_NAME <<
                                                     "query"     <<  BSON( "_id" << id << tag_property << req->tag ) <<
                                                     "update"    << BSON(
@@ -157,15 +181,24 @@ struct mongo_update_job {
                                             ),
                                     command_result ); 
 
-                    cerr << "update: "<< command_result.toString() << endl;
-                    results.push_back( command_result["value"].Obj().getOwned() );
+                        cerr << "update: "<< command_result.toString() << endl;
+                        BSONElement v = command_result["value"];
+                        if ( v.isNull() ) {
+                                code = 412;
+                        } else {
+                            results.push_back( v.Obj().getOwned() );
+                        }
+
+                    } else {
+                        code = 404;
+                    }
                     
                     c.done();
 
                   } catch( DBException &e ) {
                     cerr << "caught " << e.what() << endl;
                   }
-                  return mongo_results_ptr( new mongo_results_t( std::move(results) ) );
+                  return mongo_results_ptr( new mongo_query_result( std::move(results), code ) );
         }
 
 };

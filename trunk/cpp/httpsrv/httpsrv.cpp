@@ -32,6 +32,7 @@
 #include "mongo/client/connpool.h"
 
 #include "split.hxx"
+#include "http_status_codes.hxx"
 
 std::string get_filename_extention ( const std::string& name );
 
@@ -133,7 +134,7 @@ class myhttprequesthandler:
                httpresponse<std::string> res;
                res.data.code = code;
 		       res.data.bodyptr->ctype = ctype;
-               res.data.reason = reason;
+               res.data.reason = http_status_description(code);
                res.data.bodyptr->body.swap(body) ;
                for( auto i = conns_.begin(); i != conns_.end(); ++i ) {
                    const http_request_msg& req = (*i).second->request();
@@ -180,7 +181,7 @@ class myhttprequesthandler:
 
     pending_connections     updating_clients_;
     
-    void process_connections( mongo_results_t& rv, pending_connections& conns, void* key ) {
+    void process_connections( int code, mongo_results_t& rv, pending_connections& conns, void* key ) {
         std::string body;
         body += "[\n ";
         mongo_results_t::iterator i = rv.begin(); 
@@ -195,9 +196,9 @@ class myhttprequesthandler:
         }
         body += "\n]\n";
         if ( key ) {
-            conns.async_restart( key, 200, "OK", std::move(body), "application/json" );
+            conns.async_restart( key, code, "OK", std::move(body), "application/json" );
         } else {
-            conns.async_restart_all( 200, "OK", std::move(body), "application/json" );
+            conns.async_restart_all( code, "OK", std::move(body), "application/json" );
         
         }
     }
@@ -348,17 +349,17 @@ myhttprequesthandler::handle_timeout(const boost::system::error_code& ec) {
 
 void 
 myhttprequesthandler::handle_query_result( mongo_results_ptr rv, mongo_query_req::shared_ptr req ) {
-        cerr << "results: " << rv->size()  << endl;
+        cerr << "results: " << rv->data.size()  << endl;
         if ( auto* clients = get_client_table_slot(req->path, false )  ) {
             auto& querying_connections = clients->querying_connections;
-            process_connections(*rv, querying_connections, 0 );
+            process_connections( rv->code, rv->data, querying_connections, 0 );
         }
 }
 
 void 
 myhttprequesthandler::handle_update_result( mongo_results_ptr rv, mongo_update_req::shared_ptr req, void* key ) {
-        cerr << "results: " << rv->size()  << endl;
-        process_connections(*rv, updating_clients_, key );
+        cerr << "results: " << rv->data.size()  << endl;
+        process_connections(rv->code, rv->data, updating_clients_, key );
         auto last_slash = req->path.find_last_of("/");
         std::string folderpath;
         if ( last_slash != std::string::npos ) {
