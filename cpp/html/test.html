@@ -84,10 +84,10 @@ div.toolbar {
   <body>
     
   <div class='toolbar'>
-   <button id="button-setup-channel">New Note</button>
+   <button id="button-new-note">New Note</button>
    &nbsp;
-   <button id="button-setup-channel">select</button>
-   <input type=text id="input-channel-name" size=20 value="" >
+   <button id="button-change-folder">select</button>
+   <input type=text id="input-folder-name" size=20 value="" >
   </div>
    <div class='hidden'>
     <div id='stickynote-sample' class='stickynote' >
@@ -106,10 +106,8 @@ div.toolbar {
 
     <hr>
 
-    <pre id='json'>
-
-
-   </pre>
+    <pre id='debug1'> </pre>
+    <pre id='debug2'> </pre>
 
 
 
@@ -118,16 +116,18 @@ div.toolbar {
 
 
     <script>
-    var current_folder;
-    var current_objects = {};
+    var clientId;
+    var currentFolder;
+    var currentItems = {};
     function updateStickyNotes(data)  {
-            var found_objects = {};
+            var foundItems = {};
 
             $(data).each(function() {
+                                if ( ! this.data ) { return;  }
                                 var name = this.name;
                                 var tag = this.tag;
-                                found_objects[name] = this;
-                                var current = current_objects[name]
+                                foundItems[name] = this;
+                                var current = currentItems[name]
                                 if ( current && tag == current.tag ) { return;  }
                                 var id = "stickynote-" + this.name;
                                 var el = $("#"+id);
@@ -135,7 +135,7 @@ div.toolbar {
                                     el = $("#stickynote-sample").clone(false);
                     				el.attr('id', id );
                 					$('#draggables').append( el ); 
-                                    el.draggable();
+                                    el.draggable(); 
                                     el.find("div.text").bind( "dblclick", function(event, ui) {
                                         el.find("div.text").hide();
                                         el.find("div.edit").show();
@@ -145,6 +145,7 @@ div.toolbar {
                                         el.find("div.text").show();
                                     } );
                                 }
+                                el.draggable( 'option', 'cursor', 'pointer' );
                                 el.find("div.text").text( this.data.text );
                                 el.find("div.edit textarea").val( this.data.text );
                                 //el.find("div.edit").hide();
@@ -166,13 +167,13 @@ div.toolbar {
                                 }
                             }
                );
-               for ( var n in current_objects ) {
-                       if ( ! found_objects[n] ) {
+               for ( var n in currentItems ) {
+                       if ( ! foundItems[n] ) {
                             $("#"+"stickynote-"+n).remove();
-                            delete current_objects[n];
+                            delete currentItems[n];
                        }
                }
-               current_objects = found_objects;
+               currentItems = foundItems;
 
     
    }
@@ -207,7 +208,7 @@ div.toolbar {
                                         }
                                 };
                                 
-    	xhr.open('GET', "../../db/" + current_folder + "/" + "?observe=1&tag="+observeTag, true);
+    	xhr.open('GET', "../../db/" + currentFolder + "/" + "?observe=1&tag="+observeTag + "&client="+clientId, true);
     	xhr.send();
     }
 
@@ -216,14 +217,14 @@ div.toolbar {
                         x: x,
                         y: y
             });
-        jQuery.post( "../../db/" + current_folder + "/" + name + "?meta=1&tag=" + tag, body, function(data) {
+        jQuery.post( "../../db/" + currentFolder + "/" + name + "?meta=1&tag=" + tag + "&client="+clientId, body, function(data) {
                         if (callback) callback();
         } );
     
     }
     function storeText( name, tag, text, callback ) {
             var body = JSON.stringify( { "text": text } );
-        jQuery.post( "../../db/" + current_folder + "/" + name + "?meta=0&tag=" + tag, body, function(data) {
+        jQuery.post( "../../db/" + currentFolder + "/" + name + "?meta=0&tag=" + tag + "&client="+clientId, body, function(data) {
                         if (callback) callback();
 
         } );
@@ -231,9 +232,10 @@ div.toolbar {
     }
     
     function fetchStickyNotes() { 
-        jQuery.getJSON( "../../db/" + current_folder + "/" , {}, function(data) {
-        		$("#json").text( JSON.stringify(data, null, 10 ) );
+        jQuery.getJSON( "../../db/" + currentFolder + "/" , {}, function(data) {
+        		$("#debug1").text( JSON.stringify(data, null, 10 ) );
                 updateStickyNotes(data);
+        		$("#debug2").text( JSON.stringify(currentItems, null, 10 ) );
         } );
     }
     
@@ -243,16 +245,17 @@ div.toolbar {
     <script type="text/javascript" src="../js/utils.js"></script>
     <script type="text/javascript" >
     	$(function() {
-    		$("#button-setup-channel").click( function() {
-    				current_folder =  $("#input-channel-name").val(); 
+            currentFolder =  getHashValueDefault("path", "root") ;
+            clientId = randomString();
+    		$("#button-change-folder").click( function() {
+    				currentFolder =  $("#input-folder-name").val(); 
     				setupChannel( 1 ); 
     				fetchStickyNotes();
-                    setHashValue("path", current_folder );
+                    setHashValue("path", currentFolder );
     			} );
-            current_folder =  getHashValueDefault("path", "root") ;
-    	    $("#input-channel-name").val( current_folder );
+    	    $("#input-folder-name").val( currentFolder );
             setTimeout(  function() {
-        		$("#button-setup-channel").click();
+        		$("#button-change-folder").click();
                 }, 0 );
     	} );
     	
