@@ -55,6 +55,11 @@ const char* http_status_description(int status) {
         case 505: return "HTTP Version Not Supported";
         case 507: return "Insufficient Storage";
         case 510: return "Not Extended";
+
+
+        // custom errors
+
+        case 581:   return "Internal Backstore Error";
         default: return "";
     }
 }
