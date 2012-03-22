@@ -290,8 +290,19 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                   boost::trim(bodystr);
                   mongoreq->data = mongo::fromjson( bodystr.c_str() );
                   mongoreq->tag = tag;
-                  mongoreq->meta = meta;
+                  mongoreq->type = meta ? UpdateMeta : UpdateData;
                   cerr << mongoreq->data.toString() << endl;
+                  get_async_runner().async_run( mongo_update_job(), &myhttprequesthandler::handle_update_result, mongoreq, key  );
+                }
+                if ( method == "DELETE") {
+                  pending_connections& conns = updating_clients_;
+                  void* key = conns.insert(c);
+                  int tag = atoi( uspm["tag"].c_str() );
+                  auto mongoreq = mongo_update_req::make_shared();
+                  mongoreq->path = dn;
+                  mongoreq->data = mongo::fromjson( "{}" );
+                  mongoreq->tag = tag;
+                  mongoreq->type = Delete;
                   get_async_runner().async_run( mongo_update_job(), &myhttprequesthandler::handle_update_result, mongoreq, key  );
                 }
         }
