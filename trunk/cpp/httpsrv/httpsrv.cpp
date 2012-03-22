@@ -85,6 +85,16 @@ class myhttprequesthandler:
         return *asyncr_;
     }
 
+    static void log_request_begin( const http_srv_connection_ptr&  c ) {
+          const http_request_msg& req = c->request();
+          LOG << (void*) c.get() << " B " << req.method() << " " << req.path() <<  " ? " << req.query_string() << endl;
+    }
+    
+    static void log_request_finish( const http_srv_connection_ptr& c, const http_response_msg& r ) {
+         const http_request_msg& req = c->request();
+         LOG << (void*) c.get() << " F " << req.method() << " " << req.path() <<  " ? " << req.query_string() << " >>> " << r.code() << " " << r.body().content_type() << " (" << r.body().size() << " bytes)" << endl;
+    }
+
 	virtual void handle_http_request( const http_srv_connection_ptr& c  );
 
     void handle_timeout(const boost::system::error_code& ec);
@@ -125,6 +135,7 @@ class myhttprequesthandler:
                const http_request_msg& req = c->request();
                std::cout << req.method() << std::endl;
                httpresponse<std::string> thisres( std::move(res));
+               log_request_finish(  c, thisres );
                c->async_restart(thisres);	
                cerr << conns_.size() << endl;
                changed_  = time(0);
@@ -140,6 +151,7 @@ class myhttprequesthandler:
                    const http_request_msg& req = (*i).second->request();
                    std::cout << req.method() << std::endl;
                    httpresponse<std::string> thisres(res);
+                   log_request_finish(  (*i).second, thisres );
                    (*i).second->async_restart(thisres);	
                }
                conns_.clear();
@@ -214,6 +226,7 @@ class myhttprequesthandler:
 void 
 myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
 {
+        log_request_begin(c);
         const http_request_msg& req = c->request();
         map_t uspm;
 	    uri_string_pairs_t usp(uspm);
@@ -222,7 +235,6 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
         auto path =  split< std::vector<std::string> >(  req.path(), is_slash(), 3, 3 );
         const std::string& reqtype = path[1];
         const std::string& method =  c->request().method();
-        LOG << method << " " << path[1] << " / " << path[2] << " ? " << req.query_string() << endl;
         if ( reqtype == "db" ) {
                 cerr << path.size() << endl;
                 const std::string& dn = path[2];
@@ -242,7 +254,8 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                                res.data.code = 200;
                                res.data.reason = "OK";
                                res.data.bodyptr->body.swap(body) ;
-                                c->async_restart(res);
+                               log_request_finish(  c, res );
+                               c->async_restart(res);
 
                             } else {
                                 clients->observing_connections.insert(c);
@@ -303,6 +316,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                     catch( ... ) {
                     
                     }
+                    log_request_finish(  c, res );
                     c->async_restart(res);
                     replied = true;
                 }
@@ -310,6 +324,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                     httpresponse< std::vector<char> > res;
                     res.data.code = 404;
                     res.data.reason = "Not Found";
+                    log_request_finish(  c, res );
                     c->async_restart(res);
                 }
         }
