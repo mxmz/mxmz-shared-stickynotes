@@ -39,12 +39,15 @@ struct mongo_query_req : public shared_factory<mongo_query_req,boost::shared_ptr
             int                 skip;
 };
 
+enum update_types { None, UpdateData, UpdateMeta, Delete  };
+
 struct mongo_update_req : public shared_factory<mongo_update_req,boost::shared_ptr> {
             std::string         path;
             mongo::BSONObj      data; 
-            bool                meta;
+            update_types        type;
             int                 tag;
-            mongo_update_req() : meta(false), tag(0) {}
+
+            mongo_update_req() : type(None), tag(0) {}
 };
 
 
@@ -111,30 +114,44 @@ struct mongo_update_job {
                         ScopedDbConnection c(database_hostname);
 
                         OID id = resolve_path( c.conn(), req->path, 1 );
-                        BSONObj command_result;
 
-                        const char* target_update_property = req->meta ? meta_property : data_property;
-                    
-                        c->runCommand( DB_NAME , BSON (
-                                                    "findAndModify" << COLL_NAME <<
-                                                    "query"     <<  BSON( "_id" << id << tag_property << req->tag ) <<
-                                                    "update"    << BSON(
-                                                        "$set"      << BSON( 
-                                                                        target_update_property  << req->data <<
-                                                                        tag_property            << newtag
-                                                                )
-                                                        ) <<
-                                                    "new" << 1
-                                            ),
-                                    command_result ); 
+                        const char* target_update_property = data_property;
 
-                        cerr << "update: "<< command_result.toString() << endl;
-                        BSONElement v = command_result["value"];
-                        if ( v.isNull() ) {
-                                code = 412;
-                        } else {
-                            results.push_back( v.Obj().getOwned() );
+                        switch( req->type ) {
+                                case None       : {  
+                                                  
+                                                  
+                                                  }
+                                                  break;
+                                case UpdateMeta : target_update_property = meta_property;
+                                case UpdateData : {
+                                                    BSONObj command_result;
+                                                     c->runCommand( DB_NAME , BSON (
+                                                            "findAndModify" << COLL_NAME <<
+                                                            "query"     <<  BSON( "_id" << id << tag_property << req->tag ) <<
+                                                            "update"    << BSON(
+                                                                "$set"      << BSON( 
+                                                                                target_update_property  << req->data <<
+                                                                                tag_property            << newtag
+                                                                        )
+                                                                ) <<
+                                                            "new" << 1
+                                                    ),
+                                                    command_result ); 
+                                                    cerr << "update: "<< command_result.toString() << endl;
+                                                    BSONElement v = command_result["value"];
+                                                    if ( v.isNull() ) {
+                                                            code = 412;
+                                                    } else {
+                                                        results.push_back( v.Obj().getOwned() );
+                                                    }
+                                                 }
+                                                 break;
+                                case Delete     :    {
+                                                          c->remove( collection, QUERY( "_id" << id << tag_property << req->tag ) );
+                                                }
                         }
+
                         c.done();
 
                   } catch( DBException &e ) {

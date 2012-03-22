@@ -63,7 +63,12 @@ button {
 
 .stickynote button.cancel {
     border: 1px solid red;
-    background: #FFAAAA;
+    background: gray;
+}
+
+.stickynote button.delete {
+    border: 1px solid red;
+    background: red;
 }
 
 .hidden { display: none }
@@ -98,6 +103,8 @@ div.toolbar {
             </textarea>
             <button class='update'>update</button>
             <button class='cancel'>cancel</button>
+            <P>
+            <button class='delete'>delete note!</button>
         </div>
     </div>
    </div>
@@ -130,6 +137,7 @@ div.toolbar {
                                 var current = currentItems[name]
                                 if ( current && tag == current.tag ) { return;  }
                                 var id = "stickynote-" + this.name;
+                                /*
                                 var el = $("#"+id);
                                 if ( el.length == 0 ) {
                                     el = $("#stickynote-sample").clone(false);
@@ -145,6 +153,23 @@ div.toolbar {
                                         el.find("div.text").show();
                                     } );
                                 }
+                                */
+                                var el = $(document).findOrCreate( "#"+id, function(jq) {
+                                    var el = $("#stickynote-sample").clone(false);
+                    				el.attr('id', id );
+                					$('#draggables').append( el ); 
+                                    el.draggable(); 
+                                    el.find("div.text").bind( "dblclick", function(event, ui) {
+                                        el.find("div.text").hide();
+                                        el.find("div.edit").show();
+                                    } );
+                                    el.find("div.edit button.cancel").bind( "click", function(event, ui) {
+                                        el.find("div.edit").hide();
+                                        el.find("div.text").show();
+                                    } );
+                                    return el;
+                                } );
+
                                 el.draggable( 'option', 'cursor', 'pointer' );
                                 el.find("div.text").text( this.data.text );
                                 el.find("div.edit textarea").val( this.data.text );
@@ -162,6 +187,12 @@ div.toolbar {
                                                 el.find("div.text").show();
                                                } );
                                     } );
+                                el.find("div.edit button.delete").unbind( "click");
+                                el.find("div.edit button.delete").bind( "click", function(event, ui) {
+                                        el.fadeOut();
+                                        deleteItem( name, tag );
+                                    } );
+
                                 if ( this.meta && this.meta.x && this.meta.y ) {
                                     el.offset( { top: this.meta.y, left: this.meta.x });
                                 }
@@ -169,7 +200,7 @@ div.toolbar {
                );
                for ( var n in currentItems ) {
                        if ( ! foundItems[n] ) {
-                            $("#"+"stickynote-"+n).remove();
+                            $("#"+"stickynote-"+n).fadeOut();
                             delete currentItems[n];
                        }
                }
@@ -212,6 +243,28 @@ div.toolbar {
     	xhr.send();
     }
 
+     function deleteItem( name, tag, callback ) {
+      	var xhr = new XMLHttpRequest();
+    	xhr.onreadystatechange  =  function()
+                                {
+                                        if( xhr.readyState == 4 )  {
+                                               if ( xhr.status == 200 ) {
+                                                       if ( callback ) { callback(); }
+                                            } else if (xhr.status != 0 )  {
+                                            }
+                                        }
+                                };
+                                
+    	xhr.open('DELETE', "../../db/" + currentFolder + "/" + name + "?tag="+tag + "&client="+clientId, true);
+    	xhr.send();
+    }
+
+
+
+
+
+
+
     function storePosition( name, tag, x, y, callback ) {
             var body = JSON.stringify( {
                         x: x,
@@ -245,6 +298,16 @@ div.toolbar {
     <script type="text/javascript" src="../js/utils.js"></script>
     <script type="text/javascript" >
     	$(function() {
+
+             jQuery.fn.findOrCreate = function(selector, ctor) {
+                    var el = this.find(selector);
+                    if ( el.length == 0 ) {
+                        el = ctor(this);
+                    }
+                    return el;
+             };
+
+
             currentFolder =  getHashValueDefault("path", "root") ;
             clientId = randomString();
     		$("#button-change-folder").click( function() {
