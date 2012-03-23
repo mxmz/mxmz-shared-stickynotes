@@ -1,39 +1,54 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
-<!-- above set at the top of the file will set     -->
-<!-- the browser's rendering engine into           -->
-<!-- "Quirks Mode". Replacing this declaration     -->
-<!-- with a "Standards Mode" doctype is supported, -->
-<!-- but may lead to some differences in layout.   -->
-
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
-    <link href='http://fonts.googleapis.com/css?family=Sunshiney' rel='stylesheet' type='text/css'>
+    <!--link href='http://fonts.googleapis.com/css?family=Sunshiney' rel='stylesheet' type='text/css' -->
+    <!-- link href='http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope' rel='stylesheet' type='text/css' -->
+    <!-- link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css' -->
+    <!--link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css' -->
+    <!--link href='http://fonts.googleapis.com/css?family=Fondamento' rel='stylesheet' type='text/css' -->
+    <link href='http://fonts.googleapis.com/css?family=Short+Stack' rel='stylesheet' type='text/css'>
 
   <style>
-  
+
+body {
+    background: url(../images/6255477684_6a54429ac6_m_d.jpg) ;
+
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+}
+
 .stickynote {
         width:  200px;
         height: 200px;
-        border-top: 1px solid yellow;
-        border-left: 1px solid yellow;
-        border-bottom: 2px solid gray;
-        border-right: 1px solid gray;
+        border-top: 1px solid gray;
+        border-left: 1px solid gray;
+        border-bottom: 3px solid black;
+        border-right: 2px solid gray;
+        position: absolute;
+        cursor: pointer;
 
         padding: 10px;
         background: #FFFFAA;
-        cursor: pointer;
-
-
+        cursor: default;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        -khtml-border-radius: 4px;
+        border-radius: 4px;
 }
 
 .stickynote div.text {
         width:  190px;
         height: 180px;
-        font-family: 'Sunshiney', serif;
-        font-size: 20px;
+        font-family: 'Short Stack', sans-serif;
+        font-size: 16px;
+        cursor: pointer;
 
         -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -50,25 +65,33 @@
 }
 
 .stickynote div.edit textarea {
-            height: 90%;
+            height: 80%;
+            width: 98%;
+
 }
 
 button {
         cursor: pointer;
+        border: 1px solid gray;
+     -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+        font-family: sans-serif;
+}
+
+button:hover {
+    background: #FFFFFF;
 }
 
 .stickynote button.update {
-    border: 1px solid gray;
 }
 
 .stickynote button.cancel {
-    border: 1px solid red;
-    background: gray;
 }
 
 .stickynote button.delete {
-    border: 1px solid red;
-    background: red;
+    background: #FFCCCC;
 }
 
 .hidden { display: none }
@@ -78,7 +101,6 @@ div.toolbar {
     position: absolute;
     top: 0px;
     right: 0px;
-    background: gray;
 }
 
   </style>
@@ -89,33 +111,33 @@ div.toolbar {
   <body>
     
   <div class='toolbar'>
-   <button id="button-new-note">New Note</button>
+   <button class="newnote" id="button-newnote">make a new note</button>
    &nbsp;
-   <button id="button-change-folder">select</button>
-   <input type=text id="input-folder-name" size=20 value="" >
+   &nbsp;
+   <button class="changefolder" id="button-changefolder">switch board</button><input type=text id="input-foldername" size=20 value="" >
   </div>
    <div class='hidden'>
-    <div id='stickynote-sample' class='stickynote' >
+    <div id='stickynote-sample' class='stickynote' title='double-click to edit' >
         <div class='text'>
         </div>
         <div class='edit'>
             <textarea >
             </textarea>
-            <button class='update'>update</button>
-            <button class='cancel'>cancel</button>
+            <button class='update'>save</button>
             <P>
-            <button class='delete'>delete note!</button>
+            <button class='cancel'>cancel</button>
+            <button class='delete'>delete this note</button>
         </div>
     </div>
    </div>
     <div id="draggables"></div>
     
 
-    <hr>
 
+   <div class='hidden'>
     <pre id='debug1'> </pre>
     <pre id='debug2'> </pre>
-
+   </div>
 
 
 
@@ -123,40 +145,33 @@ div.toolbar {
 
 
     <script>
+    function htmlize(text) {
+        text  =  text.replace( /\*(\w+)\*/g, "<b>$1</b>")
+                .replace(/_(\w+)_/g,"<u>$1</u>")
+                .replace(/\n\s*---\s*\n/g, "<hr>")
+                .replace(/\n/g, "<br>");
+
+        return text;
+    }
+
     var clientId;
     var currentFolder;
     var currentItems = {};
     function updateStickyNotes(data)  {
             var foundItems = {};
-
             $(data).each(function() {
-                                if ( ! this.data ) { return;  }
+                                if ( ! this.meta ) { return;  }
                                 var name = this.name;
                                 var tag = this.tag;
+                                this.data = this.data || { text: null };
                                 foundItems[name] = this;
                                 var current = currentItems[name]
                                 if ( current && tag == current.tag ) { return;  }
                                 var id = "stickynote-" + this.name;
-                                /*
-                                var el = $("#"+id);
-                                if ( el.length == 0 ) {
-                                    el = $("#stickynote-sample").clone(false);
-                    				el.attr('id', id );
-                					$('#draggables').append( el ); 
-                                    el.draggable(); 
-                                    el.find("div.text").bind( "dblclick", function(event, ui) {
-                                        el.find("div.text").hide();
-                                        el.find("div.edit").show();
-                                    } );
-                                    el.find("div.edit button.cancel").bind( "click", function(event, ui) {
-                                        el.find("div.edit").hide();
-                                        el.find("div.text").show();
-                                    } );
-                                }
-                                */
                                 var el = $(document).findOrCreate( "#"+id, function(jq) {
                                     var el = $("#stickynote-sample").clone(false);
                     				el.attr('id', id );
+                                    el.hide();
                 					$('#draggables').append( el ); 
                                     el.draggable(); 
                                     el.find("div.text").bind( "dblclick", function(event, ui) {
@@ -167,12 +182,13 @@ div.toolbar {
                                         el.find("div.edit").hide();
                                         el.find("div.text").show();
                                     } );
+                                    el.fadeIn();
                                     return el;
                                 } );
 
                                 el.draggable( 'option', 'cursor', 'pointer' );
-                                el.find("div.text").text( this.data.text );
-                                el.find("div.edit textarea").val( this.data.text );
+                                el.find("div.text").html( htmlize( this.data.text || "(empty)"  ) );
+                                el.find("div.edit textarea").val( this.data.text || "" );
                                 //el.find("div.edit").hide();
                                 //el.find("div.text").show();
                                 el.unbind("dragstop");
@@ -260,8 +276,18 @@ div.toolbar {
     }
 
 
-
-
+    var newpos = 1;
+    function storeNew( callback ) {
+            newpos += 20 + Math.floor(Math.random() * 10 );
+            var body = JSON.stringify( {
+                        x: newpos % 1000,
+                        y: newpos % 500
+            });
+            var name = randomString();
+        jQuery.post( "../../db/" + currentFolder + "/" + name + "?meta=1&tag=" + 0 + "&client="+clientId, body, function(data) {
+                        if (callback) callback();
+        } );
+    }
 
 
 
@@ -285,11 +311,15 @@ div.toolbar {
     }
     
     function fetchStickyNotes() { 
-        jQuery.getJSON( "../../db/" + currentFolder + "/" , {}, function(data) {
+        var folder = currentFolder;
+        jQuery.getJSON( "../../db/" + folder + "/?client="+clientId , {}, function(data) {
         		$("#debug1").text( JSON.stringify(data, null, 10 ) );
                 updateStickyNotes(data);
         		$("#debug2").text( JSON.stringify(currentItems, null, 10 ) );
-        } );
+        } ).error( function() {
+                    alert("Couldn't load notes in " + folder );
+                }
+           );
     }
     
     </script>
@@ -308,18 +338,25 @@ div.toolbar {
              };
 
 
-            currentFolder =  getHashValueDefault("path", "root") ;
-            clientId = randomString();
-    		$("#button-change-folder").click( function() {
-    				currentFolder =  $("#input-folder-name").val(); 
+            currentFolder =  getHashValueDefault("path", "Test") ;
+            clientId = readCookieWithDefault("clientid", randomString() );
+            createCookie("clientid", clientId, 1000 );
+            clientId = clientId + "." + Math.floor(Math.random() * 10 );
+
+    		$("#button-changefolder").click( function() {
+    				currentFolder =  $("#input-foldername").val(); 
     				setupChannel( 1 ); 
-    				fetchStickyNotes();
+    				//fetchStickyNotes();
                     setHashValue("path", currentFolder );
     			} );
-    	    $("#input-folder-name").val( currentFolder );
+    	    $("#input-foldername").val( currentFolder );
             setTimeout(  function() {
-        		$("#button-change-folder").click();
+        		$("#button-changefolder").click();
                 }, 0 );
+    		
+            $("#button-newnote").click( function() {
+                                storeNew();
+                            } );
     	} );
     	
     	

@@ -87,12 +87,15 @@ class myhttprequesthandler:
 
     static void log_request_begin( const http_srv_connection_ptr&  c ) {
           const http_request_msg& req = c->request();
-          LOG << (void*) c.get() << " B " << req.method() << " " << req.path() <<  " ? " << req.query_string() << endl;
+          LOG << (void*) c.get() << " <<< " << req.method() << " " << req.path() <<  "?" << req.query_string() << endl;
     }
     
     static void log_request_finish( const http_srv_connection_ptr& c, const http_response_msg& r ) {
          const http_request_msg& req = c->request();
-         LOG << (void*) c.get() << " F " << req.method() << " " << req.path() <<  " ? " << req.query_string() << " >>> " << r.code() << " " << r.body().content_type() << " (" << r.body().size() << " bytes)" << endl;
+         LOG << (void*) c.get() << " >> " 
+                 << r.code() << " " << r.body().content_type() << " " << r.body().size() << " bytes" 
+                 << " (" << req.method() << " " << req.path() <<  "?" << req.query_string() << ")" 
+                 << endl;
     }
 
 	virtual void handle_http_request( const http_srv_connection_ptr& c  );

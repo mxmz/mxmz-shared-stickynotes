@@ -88,6 +88,9 @@ struct mongo_query_job {
                         while( cursor.get() and cursor->more() ) {
                               results.push_back( cursor->next().getOwned() );
                         }
+                        if ( results.empty() and not childquery ) {
+                                code = 404;
+                        }
                         c.done();
 
                   } catch( DBException &e ) {
@@ -177,6 +180,10 @@ mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, siz
 
             c.ensureIndex(collection, BSON( pid_property << 1 << name_property << 1 ));
             c.ensureIndex(collection, BSON( pid_property << 1 ));
+
+            if ( pathstr.size() >= 25 and pathstr[0] == '=' ) {
+                return OID( pathstr.substr(1,24));
+            }
 
             OID pid;
             BSONObj o;
