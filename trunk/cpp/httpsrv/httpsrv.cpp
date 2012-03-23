@@ -33,6 +33,7 @@
 
 #include "split.hxx"
 #include "http_status_codes.hxx"
+#include "lru_cache_map.hxx"
 
 std::string get_filename_extention ( const std::string& name );
 
@@ -68,13 +69,6 @@ class myhttprequesthandler:
 	public:
 	boost::asio::io_service& get_io_service() { return ios_; }
 
-	myhttprequesthandler( boost::asio::io_service& ios, string_vector_t&& paths )  // ctor
-		:
-		ios_(ios),
-        timer_(ios),
-        static_paths_( std::move(paths))
-    {
-	}
 
     async_runner<myhttprequesthandler>& get_async_runner() {
         if ( ! asyncr_ ) {
@@ -178,7 +172,8 @@ class myhttprequesthandler:
                 time_t changed() const {
                         return std::max( querying_connections.changed(), observing_connections.changed() );
                 }
-    };  
+    }; 
+
 
     reading_clients* get_client_table_slot( const std::string& path, bool autovivify ) {
         if ( autovivify ) {
@@ -221,6 +216,26 @@ class myhttprequesthandler:
 
     void handle_query_result( mongo_results_ptr rv, mongo_query_req::shared_ptr req );
     void handle_update_result( mongo_results_ptr rv, mongo_update_req::shared_ptr req, void* key );
+
+    struct mongo_results_cache_entry {
+            mongo_results_ptr results;
+            time_t            mtime;
+            mongo_results_cache_entry() : mtime(0) {}
+    };
+
+    lru_cache_map< std::string, mongo_results_cache_entry >     mongo_results_lru_cache_;
+
+	
+    
+    myhttprequesthandler( boost::asio::io_service& ios, string_vector_t&& paths )  // ctor
+		:
+		ios_(ios),
+        timer_(ios),
+        static_paths_( std::move(paths)),
+        mongo_results_lru_cache_(10)
+    {
+	}
+
 };
 
 
@@ -229,6 +244,7 @@ class myhttprequesthandler:
 void 
 myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
 {
+        time_t now = time(0);
         log_request_begin(c);
         const http_request_msg& req = c->request();
         map_t uspm;
