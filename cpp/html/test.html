@@ -44,7 +44,7 @@ body {
 }
 
 .stickynote div.text {
-        width:  190px;
+        width:  195px;
         height: 180px;
         font-family: 'Short Stack', sans-serif;
         font-size: 16px;
@@ -117,8 +117,11 @@ div.toolbar {
    <button class="changefolder" id="button-changefolder">switch board</button><input type=text id="input-foldername" size=20 value="" >
   </div>
    <div class='hidden'>
-    <div id='stickynote-sample' class='stickynote' title='double-click to edit' >
-        <div class='text'>
+    <div id='stickynote-sample' class='stickynote' 
+    >
+        <div class='text'
+            title='double click to edit note' 
+            >
         </div>
         <div class='edit'>
             <textarea >
@@ -146,10 +149,12 @@ div.toolbar {
 
     <script>
     function htmlize(text) {
-        text  =  text.replace( /\*(\w+)\*/g, "<b>$1</b>")
-                .replace(/_(\w+)_/g,"<u>$1</u>")
-                .replace(/\n\s*---\s*\n/g, "<hr>")
-                .replace(/\n/g, "<br>");
+        text  =  text
+                .replace( /'''''([_\w\s]+)'''''/g, "<b><i>$1</i></b>")
+                .replace( /'''([_\w\s]+)'''/g, "<b>$1</b>")
+                .replace( /''([_\w\s]+)''/g, "<i>$1</i>")
+                .replace(/\n\s*----\s*\n/g, "<hr>")
+                .replace(/\n\s*\n/g, "<br>");
 
         return text;
     }
@@ -157,13 +162,19 @@ div.toolbar {
     var clientId;
     var currentFolder;
     var currentItems = {};
+    function resetStickyNotes() {
+        currentItems = {};
+      	$('#draggables').html("");
+    }
+    var newpos = 1;
     function updateStickyNotes(data)  {
             var foundItems = {};
             $(data).each(function() {
-                                if ( ! this.meta ) { return;  }
+                                if ( ! this.data ) { return;  }
                                 var name = this.name;
                                 var tag = this.tag;
                                 this.data = this.data || { text: null };
+                                this.meta = this.meta || { x: 100, y : 100 };
                                 foundItems[name] = this;
                                 var current = currentItems[name]
                                 if ( current && tag == current.tag ) { return;  }
@@ -211,6 +222,10 @@ div.toolbar {
 
                                 if ( this.meta && this.meta.x && this.meta.y ) {
                                     el.offset( { top: this.meta.y, left: this.meta.x });
+                                }
+                                if ( this.data.edit && this.data.edit == clientId ) {
+                                        el.find("div.text").hide();
+                                        el.find("div.edit").show();
                                 }
                             }
                );
@@ -275,17 +290,17 @@ div.toolbar {
     	xhr.send();
     }
 
-
-    var newpos = 1;
     function storeNew( callback ) {
-            newpos += 20 + Math.floor(Math.random() * 10 );
+            newpos =  ( ( newpos + 10 + Math.floor(Math.random() * 5  )) % 500 );
             var body = JSON.stringify( {
-                        x: newpos % 1000,
-                        y: newpos % 500
+                        text: "", edit: clientId
             });
             var name = randomString();
-        jQuery.post( "../../db/" + currentFolder + "/" + name + "?meta=1&tag=" + 0 + "&client="+clientId, body, function(data) {
+        jQuery.post( "../../db/" + currentFolder + "/" + name + "?meta=0&tag=" + 0 + "&client="+clientId, body, function(data) {
                         if (callback) callback();
+                        var tag = data[0].tag;
+                        storePosition( name, tag, newpos, newpos, function() {
+                                } );
         } );
     }
 
@@ -341,10 +356,11 @@ div.toolbar {
             currentFolder =  getHashValueDefault("path", "Test") ;
             clientId = readCookieWithDefault("clientid", randomString() );
             createCookie("clientid", clientId, 1000 );
-            clientId = clientId + "." + Math.floor(Math.random() * 10 );
+            clientId = clientId + "." + randomString();
 
     		$("#button-changefolder").click( function() {
     				currentFolder =  $("#input-foldername").val(); 
+                    resetStickyNotes();
     				setupChannel( 1 ); 
     				//fetchStickyNotes();
                     setHashValue("path", currentFolder );
