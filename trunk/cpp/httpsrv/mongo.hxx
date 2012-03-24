@@ -11,7 +11,9 @@
 
 #include "split.hxx"
 
-int random_number() { return (100000000) + ( rand() % (900000000) ); }
+
+template< int UpperLimit = 10000000 >
+int random_number() { return (UpperLimit/10) + ( rand() % (9*(UpperLimit/10)) ); }
 
 template< char C >
  struct is_char {
@@ -37,6 +39,8 @@ typedef boost::shared_ptr< mongo_query_result > mongo_results_ptr;
 struct mongo_query_req : public shared_factory<mongo_query_req,boost::shared_ptr> {
             std::string         path;
             int                 skip;
+            long long int       lock;
+            mongo_query_req() : lock(1) { }
 };
 
 enum update_types { None, UpdateData, UpdateMeta, Delete  };
@@ -45,9 +49,10 @@ struct mongo_update_req : public shared_factory<mongo_update_req,boost::shared_p
             std::string         path;
             mongo::BSONObj      data; 
             update_types        type;
-            int                 tag;
+            long long int       tag;
+            long long int       lock;
 
-            mongo_update_req() : type(None), tag(0) {}
+            mongo_update_req() : type(None), tag(1), lock(1) {}
 };
 
 
@@ -56,6 +61,9 @@ const char* pid_property  = "p_id";
 const char* tag_property  = "tag";
 const char* data_property = "data";
 const char* meta_property = "meta";
+const char* mtime_property = "mtime";
+
+const char* locktag_property = "lock";
 
 #define DB_NAME      "test"
 #define COLL_NAME    "StickyNotes"
@@ -86,7 +94,8 @@ struct mongo_query_job {
                                 c->query( collection, QUERY(  "_id" << id ), 50, req->skip   );
 
                         while( cursor.get() and cursor->more() ) {
-                              results.push_back( cursor->next().getOwned() );
+                              results.push_back( cursor->next().removeField("_id").removeField("p_id").getOwned() );
+                              cerr << *results.begin() << endl;
                         }
                         if ( results.empty() and not childquery ) {
                                 code = 404;
@@ -112,7 +121,6 @@ struct mongo_update_job {
                 mongo_results_t results;
                 int code = 200;
                 cerr << req->path << endl;
-                int newtag = random_number();
                 try {
                         ScopedDbConnection c(database_hostname);
 
@@ -128,14 +136,40 @@ struct mongo_update_job {
                                                   break;
                                 case UpdateMeta : target_update_property = meta_property;
                                 case UpdateData : {
+                                                    cerr <<         BSON( "_id" << id << tag_property << req->tag ) << endl;
+                                                    struct timeval tvnow;
+                                                    gettimeofday(&tvnow, NULL);
+                                                    long long int mtime = (long long int)tvnow.tv_sec * 1000 + (tvnow.tv_usec/1000);
+                                                    long long int newtag =  mtime * 1000  + random_number<1000>();
+                                                    long long int baselock_now = mtime*1000;
+                                                    BSONObj query =  BSON( 
+                                                                        "_id" << id << 
+                                                                        tag_property << req->tag <<
+                                                                        "$or" << BSON_ARRAY(
+                                                                                    BSON ( locktag_property << req->lock ) 
+                                                                                    <<
+                                                                                    BSON (
+                                                                                            locktag_property << BSON ( 
+                                                                                                    "$lt" << baselock_now )
+                                                                                            ) 
+                                                                                
+                                                                                )
+                                                                        
+                                                                        
+                                                                        );
+
+                                                    cerr << query << endl;
+
                                                     BSONObj command_result;
                                                      c->runCommand( DB_NAME , BSON (
                                                             "findAndModify" << COLL_NAME <<
-                                                            "query"     <<  BSON( "_id" << id << tag_property << req->tag ) <<
+                                                            "query"     <<  query <<
                                                             "update"    << BSON(
                                                                 "$set"      << BSON( 
                                                                                 target_update_property  << req->data <<
-                                                                                tag_property            << newtag
+                                                                                tag_property            << newtag    <<
+                                                                                mtime_property << mtime <<
+                                                                                locktag_property << 0
                                                                         )
                                                                 ) <<
                                                             "new" << 1
@@ -146,7 +180,7 @@ struct mongo_update_job {
                                                     if ( v.isNull() ) {
                                                             code = 412;
                                                     } else {
-                                                        results.push_back( v.Obj().getOwned() );
+                                                        results.push_back( v.Obj().removeField("_id").removeField("p_id").getOwned() );
                                                     }
                                                  }
                                                  break;
@@ -211,7 +245,7 @@ mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, siz
                                                                             pid_property << pid <<
                                                                             name_property << name 
                                                                         ) <<
-                                                                        "$inc" << BSON( tag_property << 0 )
+                                                                        "$inc" << BSON( tag_property << 0 << locktag_property << 0 )
                                                                 )  
                                                     ),
                                             command_result ); 

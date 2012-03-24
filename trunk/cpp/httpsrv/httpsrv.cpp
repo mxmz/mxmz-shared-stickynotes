@@ -196,11 +196,11 @@ class myhttprequesthandler:
         body += "[\n ";
         mongo_results_t::iterator i = rv.begin(); 
         if ( i != rv.end() ) {
-                body += (*i).removeField("_id").removeField("p_id").jsonString(mongo::Strict);
+                body += (*i).jsonString(mongo::Strict);
                 ++i;
                 while(  i != rv.end() ) {
                         body += ",\n ";
-                        body += (*i).removeField("_id").removeField("p_id").jsonString(mongo::Strict);
+                        body += (*i).jsonString(mongo::Strict);
                         ++i;
                 }
         }
@@ -299,7 +299,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                 if ( method == "POST") {
                   pending_connections& conns = updating_clients_;
                   void* key = conns.insert(c);
-                  int tag = atoi( uspm["tag"].c_str() );
+                  long long int tag = atoll( uspm["tag"].c_str() );
                   int meta = atoi( uspm["meta"].c_str() );
                   auto mongoreq = mongo_update_req::make_shared();
                   mem_stor_ptr body = req.body().load();
@@ -316,7 +316,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                 if ( method == "DELETE") {
                   pending_connections& conns = updating_clients_;
                   void* key = conns.insert(c);
-                  int tag = atoi( uspm["tag"].c_str() );
+                  long long int tag = atoll( uspm["tag"].c_str() );
                   auto mongoreq = mongo_update_req::make_shared();
                   mongoreq->path = dn;
                   mongoreq->data = mongo::fromjson( "{}" );
@@ -410,8 +410,7 @@ myhttprequesthandler::handle_update_result( mongo_results_ptr rv, mongo_update_r
         if ( last_slash != std::string::npos ) {
             folderpath = req->path.substr(0,last_slash+1);
         }
-        if ( not folderpath.empty() )
-        {
+        if ( rv->code == 200 and not folderpath.empty() ) {
                 cerr << "restarting pending queries for " << folderpath << endl;
                 if ( auto* clients = get_client_table_slot(folderpath, false )  ) {
                     auto& observing_connections = clients->observing_connections;
