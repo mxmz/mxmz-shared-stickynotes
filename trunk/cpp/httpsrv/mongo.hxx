@@ -75,7 +75,10 @@ const char* database_hostname = "localhost";
 struct creation_failed {} ;
 struct creation_not_allowed {}  ;
 
-mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth );
+
+typedef std::pair< mongo::OID, mongo::OID> oid_pair;
+
+oid_pair resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth );
 
 struct mongo_query_job {
         mongo_results_ptr operator()( const mongo_query_req::shared_ptr& req ) {
@@ -85,7 +88,8 @@ struct mongo_query_job {
                 try {
 
                         ScopedDbConnection c(database_hostname);
-                        OID id = resolve_path( c.conn(), req->path, UINT_MAX );
+                        oid_pair ids = resolve_path( c.conn(), req->path, UINT_MAX );
+                        OID id = ids.first;
                         bool childquery = req->path.size() and *(req->path.rbegin()) == '/';
                         auto_ptr<DBClientCursor> cursor =
                             childquery ? 
@@ -124,7 +128,10 @@ struct mongo_update_job {
                 try {
                         ScopedDbConnection c(database_hostname);
 
-                        OID id = resolve_path( c.conn(), req->path, 1 );
+                        oid_pair ids = resolve_path( c.conn(), req->path, 1 );
+                        OID id = ids.first;
+                        OID pid = ids.second;
+               
 
                         const char* target_update_property = data_property;
 
@@ -188,6 +195,10 @@ struct mongo_update_job {
                                                           c->remove( collection, QUERY( "_id" << id << tag_property << req->tag ) );
                                                 }
                         }
+                        
+                        int siblings = c->count( collection, BSON ( pid_property << pid  )  ); 
+
+                        cerr << id << ": siblings = " << siblings << endl;
 
                         c.done();
 
@@ -206,8 +217,7 @@ struct mongo_update_job {
 };
 
 
-
-mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth )  {
+oid_pair resolve_path( mongo::DBClientBase& c, const std::string& pathstr, size_t autovivify_min_depth )  {
             using namespace mongo;
 
             auto path =  split< std::vector<std::string> >(  pathstr, is_slash(), 1 );
@@ -216,9 +226,18 @@ mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, siz
             c.ensureIndex(collection, BSON( pid_property << 1 ));
 
             if ( pathstr.size() >= 25 and pathstr[0] == '=' ) {
-                return OID( pathstr.substr(1,24));
-            }
+               OID oid( pathstr.substr(1,24));
+               BSONObj    o = c.findOne( collection, QUERY ( "_id" << oid  )  ); 
 
+               BSONElement id;
+               if ( o.getObjectID(id) ) {
+                    return oid_pair( oid, o["p_id"].OID() );
+               } else {
+                    return oid_pair( OID(), OID() );
+               }
+
+            }
+            OID ppid;
             OID pid;
             BSONObj o;
             BSONElement id;
@@ -260,13 +279,13 @@ mongo::OID resolve_path( mongo::DBClientBase& c, const std::string& pathstr, siz
                                 throw creation_not_allowed();
                             }
                     }
-
+                    ppid = pid;
                     pid = id.OID();
 
                     cerr << "name:" << name << " : " << pid << endl;
             }
 
-            return pid;
+            return oid_pair(pid,ppid);
 }
 
 
