@@ -44,6 +44,7 @@ using namespace boost::gregorian;
 
 #include "mongo.hxx"
 
+#define SESSION_COOKIE_NAME "4a472523-b2e0-45cd-bb91-a4ae77241390"
 
     using std::cerr; using std::endl;
 
@@ -51,6 +52,22 @@ using namespace boost::gregorian;
     typedef std::map< std::string, std::string > map_t;
     typedef mxm::uri_string_pair_readwrite<map_t>       uri_string_pairs_t;
 
+
+char charlist[] = "qwertyuiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNMM";
+char random_char()
+{
+	return charlist[ rand() % (sizeof(charlist)-1) ];
+}
+
+template< int Size >
+std::string random_string() {
+        std::string s(Size, ' ');
+		for( size_t n = 0; n < Size ; ++n )
+		{
+			s[n] = random_char();
+		}
+        return std::move(s);
+    }
 
 template< class HttpHandler >
 int http_server_main( short port, int argc, char* argv[] ); 
@@ -72,7 +89,7 @@ class myhttprequesthandler:
 
     async_runner<myhttprequesthandler>& get_async_runner() {
         if ( ! asyncr_ ) {
-    	    asyncr_.reset( new async_runner<myhttprequesthandler>( shared_from_this(), 5) );
+    	    asyncr_.reset( new async_runner<myhttprequesthandler>( shared_from_this(), 2) );
 		    timer_.expires_from_now(boost::posix_time::seconds(10));
 		    timer_.async_wait( boost::bind( &myhttprequesthandler::handle_timeout, shared_from_this(),  boost::asio::placeholders::error ));
         }
@@ -81,12 +98,12 @@ class myhttprequesthandler:
 
     static void log_request_begin( const http_srv_connection_ptr&  c ) {
           const http_request_msg& req = c->request();
-          LOG << (void*) c.get() << " <<< " << req.method() << " " << req.path() <<  "?" << req.query_string() << endl;
+          LOG << (void*) c.get() << " < " << req.method() << " " << req.path() <<  "?" << req.query_string() << endl;
     }
     
     static void log_request_finish( const http_srv_connection_ptr& c, const http_response_msg& r ) {
          const http_request_msg& req = c->request();
-         LOG << (void*) c.get() << " >> " 
+         LOG << (void*) c.get() << " > " 
                  << r.code() << " " << r.body().content_type() << " " << r.body().size() << " bytes" 
                  << " (" << req.method() << " " << req.path() <<  "?" << req.query_string() << ")" 
                  << endl;
@@ -106,7 +123,7 @@ class myhttprequesthandler:
             http_srv_connection_ptr remove( void* key ) {
                     auto it = conns_.find(key);
                     if ( it != conns_.end() ) {
-                            http_srv_connection_ptr c = it->second;
+                            http_srv_connection_ptr c( std::move(it->second) );
                             conns_.erase(it);
                             changed_  = time(0);
                             return std::move(c);
@@ -117,7 +134,7 @@ class myhttprequesthandler:
 
             void* insert( http_srv_connection_ptr c ) {
                     void* key = c.get();
-                    conns_[key] = c;
+                    conns_[key].swap(c);
                     changed_  = time(0);
                     return key;
             }
@@ -144,14 +161,18 @@ class myhttprequesthandler:
 		       res.data.bodyptr->ctype = ctype;
                res.data.reason = http_status_description(code);
                res.data.bodyptr->body.swap(body) ;
-               for( auto i = conns_.begin(); i != conns_.end(); ++i ) {
+               for( auto i = conns_.begin(); i != conns_.end();  ) {
                    const http_request_msg& req = (*i).second->request();
                    std::cout << req.method() << std::endl;
                    httpresponse<std::string> thisres(res);
                    log_request_finish(  (*i).second, thisres );
-                   (*i).second->async_restart(thisres);	
+                   http_srv_connection_ptr c( std::move(i->second) );
+                   c->async_restart(thisres);	
+                   auto iprev = i;
+                   ++i;
+                   conns_.erase(iprev);
                }
-               conns_.clear();
+               //conns_.clear();
                changed_  = time(0);
             }
 
@@ -326,6 +347,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                 }
         }
         else if ( reqtype == "static") {
+	            const std::string& sid =  req.cookies()[SESSION_COOKIE_NAME];
                 const std::string& filepath = path[2];
                 const std::string  ext = get_filename_extention(filepath);
                 bool replied = false;
@@ -341,6 +363,9 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                         slurp_into(in, res.data.bodyptr->body );
                         res.data.code = 200;
                         res.data.reason = "OK";
+                        if ( sid.empty() ) {
+	   	                    ( res.data.headers["Set-Cookie"] = SESSION_COOKIE_NAME ) << "=" << random_string<20>() << "; Path=/; ";
+                        }
                         res.data.bodyptr->ctype = ext2type_.get_content_type(ext);
                     }
                     catch( ... ) {
