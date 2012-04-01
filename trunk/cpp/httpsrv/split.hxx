@@ -28,5 +28,31 @@ VectorT split( const std::string& input, PredT pred, size_t minlen = 0, size_t m
         return std::move(v);
 }
 
+template< class PredT, class CollectT >
+void split( const std::string& input, PredT pred, CollectT collect, size_t minlen = 0, size_t maxlen = UINT_MAX ) {
+
+        std::string chunk;
+        size_t sizelim = maxlen > 0 ?  maxlen - 1 : 0;
+        
+        std::string::const_iterator i = input.begin();
+        while( i != input.end() ) {
+            if ( sizelim && pred(*i) ) {
+                if ( chunk.size() ) {
+                    collect( std::move(chunk) );
+                    chunk.clear();
+                    --sizelim;
+                }
+            }
+            else {
+                chunk += *i;
+            }
+            ++i;
+        }
+        if ( chunk.size() ) {
+                collect( std::move(chunk) );
+        }
+}
+
+
 
 #endif
