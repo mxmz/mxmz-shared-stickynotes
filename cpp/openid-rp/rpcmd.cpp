@@ -14,6 +14,7 @@ using namespace std;
 #include <opkele/discovery.h>
 #include <opkele/association.h>
 #include <opkele/sreg.h>
+#include <opkele/oauth_ext.h>
 using namespace opkele;
 #include <opkele/prequeue_rp.h>
 #include <opkele/debug.h>
@@ -379,13 +380,14 @@ int main(int argc, char * argv[] ) {
 	    example_rp_t rp( cookie);
         rp.set_this_url(return_to);
 	    rp.initiate(usi);
-	    opkele::sreg_t sreg(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    //opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    opkele::oauth_ext_t ext("blablabla");
 	    opkele::openid_message_t cm;
 	    string loc;
 			loc = rp.checkid_(cm,opkele::mode_checkid_setup,
 			rp.get_self_url()+
 			"?asid="+rp.as_id,
-			rp.get_self_url(),&sreg).append_query(rp.get_endpoint().uri);
+			rp.get_self_url(),&ext).append_query(rp.get_endpoint().uri);
 
 	     cout<< loc << endl;
 	}else if(op=="confirm") {
@@ -410,11 +412,11 @@ int main(int argc, char * argv[] ) {
 
         rp.set_this_url(urlparts[0] + "?asid=" + asid );
 
-	    opkele::sreg_t sreg(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
-	    rp.id_res(om,&sreg);
+	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    rp.id_res(om,&ext);
         om.to_keyvalues(cout);
 	    cout << endl
-		<< "SREG fields: " << sreg.has_fields << endl;
+		<< "SREG fields: " << ext.has_fields << endl;
 	}else if(op=="testqs") {
             const string& qs = args[2];
             map_t qsmap = parse_query_string(qs);
