@@ -43,8 +43,6 @@
 		  data.bodyptr->ctype = "text/plain";
 		  data.reason = "Undefined Response";
 		  data.code = 599;
-		  const char default_body[] = "{}\n";
-		  data.bodyptr->body.assign( default_body, default_body + sizeof(default_body) - 1 );
 	  }
 
       httpresponse( httpresponse&& that ) {

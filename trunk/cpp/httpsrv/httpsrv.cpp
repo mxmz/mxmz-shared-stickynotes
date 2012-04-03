@@ -35,6 +35,13 @@
 #include "http_status_codes.hxx"
 #include "lru_cache_map.hxx"
 
+#include "mxmz/json/v4/json_std.hxx"
+
+namespace js = mxmz::json::v4::std;
+namespace ju = mxmz::json::v4::util;
+
+
+
 std::string get_filename_extention ( const std::string& name );
 
 using namespace boost::posix_time;
@@ -324,7 +331,7 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                   int meta = atoi( uspm["meta"].c_str() );
                   auto mongoreq = mongo_update_req::make_shared();
                   mem_stor_ptr body = req.body().load();
-                  std::string bodystr( std::string(body->data(),body->size()).c_str() );
+                  std::string bodystr( body->data(), body->size() );
                         cerr << bodystr << endl;
                   mongoreq->path = dn;
                   boost::trim(bodystr);
@@ -382,6 +389,30 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                     log_request_finish(  c, res );
                     c->async_restart(res);
                 }
+        }
+        else if ( reqtype == "echo") {
+                 mem_stor_ptr body = req.body().load();
+                 std::string bodystr( body->data(), body->size() );
+                 try {
+                     
+                     js::json_value_handle json;
+                     bodystr >> json;
+                     std::string echoed ;
+                     echoed << json;
+                     
+                     httpresponse< std::string > res;
+                     res.data.code = 200;
+                     res.data.reason = "OK";
+                     res.data.bodyptr->ctype = "application/json";
+                     res.data.bodyptr->body.swap(echoed);
+                     log_request_finish(  c, res );
+                     c->async_restart(res);
+
+                 } catch ( std::exception& e ) {
+                    //
+                 }
+
+
         }
 }
 
