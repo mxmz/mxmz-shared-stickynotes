@@ -21,6 +21,8 @@ SET( httpsrv_SRCs
     ./httpsrv.cpp
     ${SRCBASEROOT}/MM-Exper/deco/deco1.cpp
     ${SRCBASEROOT}/MM_classes/src/util/sysfuncs.cpp
+
+
  )
 
 SET ( MONGO_CXX_DRIVER_PATH 
@@ -41,6 +43,8 @@ INCLUDE_DIRECTORIES(
 		${SRCBASEROOT}/FFN 
 
         ${MONGO_CXX_DRIVER_PATH}
+    
+        ../../../../mxmz-json-cpp-lib/branches/main/src
 
 	)
 
