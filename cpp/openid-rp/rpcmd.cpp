@@ -102,8 +102,8 @@ class example_rp_t : public opkele::prequeue_RP {
     std::string as_id;
 	int ordinal;
 
-	example_rp_t( std::string cookie, std::string asid = "" )
-	: htc(cookie), as_id(asid), ordinal(0), have_eqtop(false)  {
+	example_rp_t( std::string clientid, std::string asid = "" )
+	: htc(clientid), as_id(asid), ordinal(0), have_eqtop(false)  {
         if ( asid.empty() ) { // initiate
 		 sqlite3_mem_t<char*> S = sqlite3_mprintf(
 			"INSERT INTO ht_sessions (hts_id) VALUES (%Q)",
@@ -369,29 +369,30 @@ class example_rp_t : public opkele::prequeue_RP {
 int main(int argc, char * argv[] ) {
   try {
     std::vector< std::string> args( argv, argv + argc );
-    args.resize(5);
+    args.resize(6);
 
 	const string& op = args[1];
 
 	if(op=="initiate") {
-        const string& cookie = args[2];
+        const string& clientid = args[2];
         const string& usi = args[3];
-        const string& return_to = args[4];
-	    example_rp_t rp( cookie);
-        rp.set_this_url(return_to);
+        const string& return_base_url = args[4];
+        const string& return_cookie = args[5];
+	    example_rp_t rp( clientid);
+        rp.set_this_url(return_base_url);
 	    rp.initiate(usi);
-	    //opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
-	    opkele::oauth_ext_t ext("blablabla");
+	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    //opkele::oauth_ext_t ext("blablabla");
 	    opkele::openid_message_t cm;
+        string return_to_args = "?cookie=" + opkele::util::url_encode(return_cookie) + "&" + "asid="+rp.as_id;
 	    string loc;
 			loc = rp.checkid_(cm,opkele::mode_checkid_setup,
-			rp.get_self_url()+
-			"?asid="+rp.as_id,
+			rp.get_this_url()+ return_to_args, 
 			rp.get_self_url(),&ext).append_query(rp.get_endpoint().uri);
 
 	     cout<< loc << endl;
 	}else if(op=="confirm") {
-        const string& cookie = args[2];
+        const string& clientid = args[2];
         const string& url = args[3];
         if ( url == "-") {
             std::cin >> args[3];
@@ -408,9 +409,10 @@ int main(int argc, char * argv[] ) {
 	    opkele::openid_message_t om;
         om.swap(omap);
 
-	    example_rp_t rp(cookie, asid);
+	    example_rp_t rp(clientid, asid);
 
-        rp.set_this_url(urlparts[0] + "?asid=" + asid );
+        //rp.set_this_url(urlparts[0] + "?asid=" + asid );
+        rp.set_this_url( url );
 
 	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
 	    rp.id_res(om,&ext);
