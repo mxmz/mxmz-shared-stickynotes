@@ -1,5 +1,3 @@
-#if 0
-
 #include <uuid/uuid.h>
 #include <iostream>
 #include <cassert>
@@ -368,6 +366,7 @@ class example_rp_t : public opkele::prequeue_RP {
 #endif
 };
 
+#if 0
 int main(int argc, char * argv[] ) {
   try {
     std::vector< std::string> args( argv, argv + argc );
@@ -461,56 +460,98 @@ int main(int argc, char * argv[] ) {
 #endif
 
 
+#include "rp.h"
+
+class rp_sqlite : public rp {
 
 
 
+     public:
+     virtual std::string initalize( std::string clientid, std::string usi, std::string return_base_url, std::string return_cookie = "" ) {
+	    example_rp_t rp( clientid);
+        rp.set_this_url(return_base_url);
+	    rp.initiate(usi);
+	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    //opkele::oauth_ext_t ext("blablabla");
+	    opkele::openid_message_t cm;
+        string return_to_args = "?cookie=" + opkele::util::url_encode(return_cookie) + "&" + "asid="+rp.as_id;
+	    string loc;
+			loc = rp.checkid_(cm,opkele::mode_checkid_setup,
+			rp.get_this_url()+ return_to_args, 
+			rp.get_self_url(),&ext).append_query(rp.get_endpoint().uri);
+
+	     return loc;
+     }
 
 
+     virtual result confirm( std::string clientid, std::string url ) {
 
-#include "rp_sqlite.h"
-#include <vector>
-#include <iostream>
+        auto urlparts = split < std::vector<std::string> >(url, char_is<'?'>(), 2 );
 
-int main(int argc, char * argv[] ) {
-        using std::cout;
-        using std::endl;
+        map_t qsmap = parse_query_string(urlparts[1]);
+        const std::string asid =  qsmap["asid"] ;
+        result rv;
+        rv.cookie = qsmap["cookie"];
+        qsmap.erase("asid");
 
-  try {
-    std::vector< std::string> args( argv, argv + argc );
-    args.resize(6);
+        map_t omap = std::move(remove_prefixes(qsmap));
 
-	const std::string& op = args[1];
+	    opkele::openid_message_t om;
+        om.swap(omap);
 
-    auto rp = make_rp_sqlite();
+	    example_rp_t rp(clientid, asid);
 
-	if(op=="initiate") {
-        const std::string& clientid = args[2];
-        const std::string& usi = args[3];
-        const std::string& return_base_url = args[4];
-        const std::string& return_cookie = args[5];
+        //rp.set_this_url(urlparts[0] + "?asid=" + asid );
+        rp.set_this_url( url );
 
-        std::string loc = rp->initalize(clientid, usi, return_base_url, return_cookie );
+	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
+	    rp.id_res(om,&ext);
+        om.to_keyvalues(cout);
+	    cout << endl;
+    
+        rv.identity = om.get_field("identity");
+        rv.confirmed = om.get_field("mode") != "cancelled";
+        return rv;
+     }
 
-        cout << loc << endl;
+};
 
-	}else if(op=="confirm") {
-        const std::string& clientid = args[2];
-        const std::string& url = args[3];
-        if ( url == "-") {
-            std::cin >> args[3];
-        }
 
-        auto rv = rp->confirm(clientid,url );
-        cout << rv.cookie << endl;
-        cout << rv.identity << endl;
-        cout << rv.confirmed << endl;
-
-    }
-
-  } catch ( std::exception& e ) {
-    std::cerr << e.what();
-    return -1;
-  
-  }
-    return 0;
+std::unique_ptr<rp> make_rp_sqlite() {
+    return std::unique_ptr<rp>( new rp_sqlite );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

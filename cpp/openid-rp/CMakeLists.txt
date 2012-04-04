@@ -24,7 +24,8 @@ SET( openidrpsrv_SRCs
  )
 
 SET( openidrpcmd_SRCs
-      ./rpcmd.cpp  
+      ./rpcmd.cpp
+      ./rp_sqlite.cpp  
    )
 
 SET ( MONGO_CXX_DRIVER_PATH 
@@ -51,6 +52,7 @@ INCLUDE_DIRECTORIES(
         ${LIBOPKELE_PATH}/include
         ../httpsrv
         ../../../../personal/mxmz-json-cpp-lib/branches/main/src
+        ..
 
 	)
 
