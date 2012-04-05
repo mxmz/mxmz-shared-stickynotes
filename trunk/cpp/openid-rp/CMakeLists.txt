@@ -21,6 +21,9 @@ SET( openidrpsrv_SRCs
     ./rpsrv.cpp
     ${SRCBASEROOT}/MM-Exper/deco/deco1.cpp
     ${SRCBASEROOT}/MM_classes/src/util/sysfuncs.cpp
+
+      ./rpsrv.cpp
+      ./rp_sqlite.cpp  
  )
 
 SET( openidrpcmd_SRCs
@@ -51,15 +54,15 @@ INCLUDE_DIRECTORIES(
         ${MONGO_CXX_DRIVER_PATH}
         ${LIBOPKELE_PATH}/include
         ../httpsrv
-        ../../../../personal/mxmz-json-cpp-lib/branches/main/src
         ..
+        ../../../../mxmz-json-cpp-lib/branches/main/src
 
 	)
 
 
 
 # Linux console
- SET( openidrp_COMPILE_FLAGS "-D_REENTRANT -std=c++0x -Dlinux -Dunix" ) 
+ SET( openidrp_COMPILE_FLAGS "-O3 -D_REENTRANT -std=c++0x -Dlinux -Dunix" ) 
  SET( openidrp_LINK_FLAGS "-pthread  -lsqlite3 -lopkele -luuid" ) 
  SET( openidrp_LINK_LIBRARIES 
 #      ${MONGO_CXX_DRIVER_PATH}/libmongoclient.a
@@ -73,6 +76,7 @@ INCLUDE_DIRECTORIES(
 
 
 SET_SOURCE_FILES_PROPERTIES( ${openidrpcmd_SRCs} PROPERTIES COMPILE_FLAGS "${openidrp_COMPILE_FLAGS}" )
+SET_SOURCE_FILES_PROPERTIES( ${openidrpsrv_SRCs} PROPERTIES COMPILE_FLAGS "${openidrp_COMPILE_FLAGS}" )
 
 
 ADD_EXECUTABLE( "openidrpcmd" ${openidrpcmd_SRCs} )
@@ -80,6 +84,9 @@ SET_TARGET_PROPERTIES( "openidrpcmd" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAG
 TARGET_LINK_LIBRARIES( "openidrpcmd" ${openidrp_LINK_LIBRARIES} )
  
 
+ADD_EXECUTABLE( "openidrpsrv" ${openidrpsrv_SRCs} )
+SET_TARGET_PROPERTIES( "openidrpsrv" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAGS}" )
+TARGET_LINK_LIBRARIES( "openidrpsrv" ${openidrp_LINK_LIBRARIES} )
 
 
 
