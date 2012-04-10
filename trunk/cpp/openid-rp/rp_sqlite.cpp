@@ -474,7 +474,7 @@ class rp_sqlite : public rp {
 	    opkele::sreg_t ext(opkele::sreg_t::fields_NONE,opkele::sreg_t::fields_ALL);
 	    //opkele::oauth_ext_t ext("blablabla");
 	    opkele::openid_message_t cm;
-        string return_to_args = "?cookie=" + opkele::util::url_encode(return_cookie) + "&" + "asid="+rp.as_id;
+        string return_to_args = "?0=" + opkele::util::url_encode(return_cookie) + "&" + "_="+rp.as_id;
 	    string loc;
 			loc = rp.checkid_(cm,opkele::mode_checkid_setup,
 			rp.get_this_url()+ return_to_args, 
@@ -489,10 +489,10 @@ class rp_sqlite : public rp {
         auto urlparts = split < std::vector<std::string> >(url, char_is<'?'>(), 2 );
 
         map_t qsmap = parse_query_string(urlparts[1]);
-        const std::string asid =  qsmap["asid"] ;
+        const std::string asid =  qsmap["_"] ;
         result rv;
-        rv.cookie = qsmap["cookie"];
-        qsmap.erase("asid");
+        rv.cookie = qsmap["0"];
+        qsmap.erase("_");
 
         map_t omap = std::move(remove_prefixes(qsmap));
 
