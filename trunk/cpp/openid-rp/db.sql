@@ -16,15 +16,10 @@ CREATE TABLE nonces (
  PRIMARY KEY (n_op,n_once)
 );
 
-CREATE TABLE ht_sessions (
- hts_id text NOT NULL PRIMARY KEY
-);
-
 CREATE TABLE auth_sessions (
  as_id varchar PRIMARY KEY, 
- hts_id text NOT NULL REFERENCES ht_sessions(hts_id),
- as_normalized_id text,
- UNIQUE (hts_id,as_id)
+ as_clientid text NOT NULL, 
+ as_normalized_id text
 );
 
 CREATE TABLE endpoints_queue (

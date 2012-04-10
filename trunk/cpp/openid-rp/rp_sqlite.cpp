@@ -98,18 +98,12 @@ class rpdb_t : public sqlite3_t {
 class example_rp_t : public opkele::prequeue_RP {
     public:
 	mutable rpdb_t db;
-    std::string     htc;
+    std::string     client_id;
     std::string as_id;
 	int ordinal;
 
 	example_rp_t( std::string clientid, std::string asid = "" )
-	: htc(clientid), as_id(asid), ordinal(0), have_eqtop(false)  {
-        if ( asid.empty() ) { // initiate
-		 sqlite3_mem_t<char*> S = sqlite3_mprintf(
-			"INSERT INTO ht_sessions (hts_id) VALUES (%Q)",
-			htc.c_str());
-		 db.exec(S);
-        }
+	: client_id(clientid), as_id(asid), ordinal(0), have_eqtop(false)  {
 	}
 
 	/* Global persistent store */
@@ -227,7 +221,7 @@ class example_rp_t : public opkele::prequeue_RP {
 
 	void begin_queueing() {
 	    assert(! as_id.empty() );
-	    DOUT_("Resetting queue for session " << htc << "/" << as_id);
+	    DOUT_("Resetting queue for session " << client_id << "/" << as_id);
 	    sqlite3_mem_t<char*> S = sqlite3_mprintf(
 		    "DELETE FROM endpoints_queue"
 		    " WHERE as_id=%Q",
@@ -259,9 +253,12 @@ class example_rp_t : public opkele::prequeue_RP {
 			    "  eq_uri, eq_claimed_id, eq_local_id"
 			    " FROM endpoints_queue"
 			    "  JOIN auth_sessions USING(as_id)"
-			    " WHERE hts_id=%Q AND as_id=%Q"
+			    " WHERE as_id=%Q AND as_clientid=%Q"
 			    " ORDER BY eq_ctime,eq_ordinal"
-			    " LIMIT 1",htc.c_str(),as_id.c_str() );
+			    " LIMIT 1",
+                    as_id.c_str() ,
+                    client_id.c_str()
+                    );
 		sqlite3_table_t T; int nr,nc;
 		db.get_table(S,T,&nr,&nc);
 		if(nr<1)
@@ -282,8 +279,11 @@ class example_rp_t : public opkele::prequeue_RP {
 	    sqlite3_mem_t<char*> S = sqlite3_mprintf(
 		    "DELETE FROM endpoints_queue"
 		    " WHERE as_id=%Q AND eq_uri=%Q AND eq_local_id=%Q",
-		    htc.c_str(),as_id.c_str(),
-		    eqtop.uri.c_str());
+		    as_id.c_str(),
+		    eqtop.uri.c_str(),
+		    eqtop.local_id.c_str()
+            
+            );
 	    db.exec(S);
 	}
 
@@ -294,9 +294,9 @@ class example_rp_t : public opkele::prequeue_RP {
 	    sqlite3_mem_t<char*> S = sqlite3_mprintf(
 		    "UPDATE auth_sessions"
 		    " SET as_normalized_id=%Q"
-		    " WHERE hts_id=%Q and as_id=%Q",
+		    " WHERE as_clientid=%Q and as_id=%Q",
 		    nid.c_str(),
-		    htc.c_str(),as_id.c_str());
+		    client_id.c_str(),as_id.c_str());
 	    db.exec(S);
 	    _nid = nid;
 	}
@@ -308,8 +308,8 @@ class example_rp_t : public opkele::prequeue_RP {
 			" FROM"
 			"  auth_sessions"
 			" WHERE"
-			"  hts_id=%Q AND as_id=%Q",
-			htc.c_str(),as_id.c_str());
+			"  as_clientid=%Q AND as_id=%Q",
+			client_id.c_str(),as_id.c_str());
 		sqlite3_table_t T; int nr,nc;
 		db.get_table(S,T,&nr,&nc);
 		assert(nr==1); assert(nc==1);
@@ -352,9 +352,9 @@ class example_rp_t : public opkele::prequeue_RP {
 	    as_id = uuidchr;
 
 	    sqlite3_mem_t<char*> S = sqlite3_mprintf(
-		    "INSERT INTO auth_sessions (as_id, hts_id)"
+		    "INSERT INTO auth_sessions (as_id, as_clientid)"
 		    " VALUES (%Q, %Q)",
-		    as_id.c_str(), htc.c_str());
+		    as_id.c_str(), client_id.c_str());
 	    db.exec(S);
 	    DOUT_("Allocated authentication session id "<<as_id);
 	}

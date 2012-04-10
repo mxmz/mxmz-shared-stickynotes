@@ -20,13 +20,13 @@ class sqlite3_t {
 	operator sqlite3*(void) { return _D; }
 
 	void exec(const char *sql) {
-	    assert(_D);
+	    assert(_D); DOUT_( sql );
 	    char *errm;
 	    if(sqlite3_exec(_D,sql,NULL,NULL,&errm)!=SQLITE_OK)
 		throw opkele::exception(OPKELE_CP_ string("Failed to sqlite3_exec():")+errm);
 	}
 	void get_table(const char *sql,char ***resp,int *nr,int *nc) {
-	    assert(_D);
+	    assert(_D); DOUT_( sql );
 	    char *errm;
 	    if(sqlite3_get_table(_D,sql,resp,nr,nc,&errm)!=SQLITE_OK)
 		throw opkele::exception(OPKELE_CP_ string("Failed to sqlite3_get_table():")+errm);
