@@ -11,9 +11,8 @@ class rp {
      virtual std::string initalize( std::string clientid, std::string identity, std::string return_base_url, std::string cookie = "" ) = 0;
 
      struct result {
-            std::string cookie;
             std::string identity;
-            bool        confirmed;
+            std::string cookie;
      };
 
      virtual result confirm( std::string clientid, std::string return_url ) = 0;

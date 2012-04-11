@@ -82,6 +82,38 @@ int http_server_main( short port, int argc, char* argv[] );
 
 typedef std::vector< std::string > string_vector_t;
 
+
+struct rp_initiate_request: public shared_factory<rp_initiate_request, boost::shared_ptr > {
+        std::string client_id;
+        std::string identity;
+        std::string return_base_url;
+        std::string return_cookie;
+};
+
+struct rp_initiate_result : public shared_factory<rp_initiate_result, boost::shared_ptr > {
+        int         code;
+        std::string login_url;
+        std::string error;
+};
+
+
+struct rp_confirm_request: public shared_factory<rp_confirm_request, boost::shared_ptr > {
+        std::string client_id;
+        std::string return_url;
+};
+
+struct rp_confirm_result : public shared_factory<rp_confirm_result, boost::shared_ptr > {
+        int         code;
+        std::string identity;
+        std::string return_cookie;
+        std::string error;
+};
+
+
+
+
+
+
 class myhttprequesthandler:
 		public http_request_handler,
 		public boost::enable_shared_from_this<myhttprequesthandler>
@@ -201,12 +233,92 @@ class myhttprequesthandler:
 
 
 
+    void handle_initiate_completion( rp_initiate_result::shared_ptr rv, rp_initiate_request::shared_ptr, void* reqid ) {
+            std::string body;
+            std::string ctype = "text/plain";
+            if ( rv->code == 200 ) {
+                    ctype = "application/json";
+                    js::json_value_handle json;
+                    json["login_url"] = rv->login_url;
+                    body << json;
+            } else {
+                body = rv->error; 
+            }
+            clients_.async_restart(reqid, rv->code, http_status_description(rv->code), std::move(body), ctype );
+    }
+
+    void handle_confirm_completion( rp_confirm_result::shared_ptr rv, rp_confirm_request::shared_ptr, void* reqid ) {
+            std::string body;
+            std::string ctype = "text/plain";
+            if ( rv->code == 200 ) {
+                    ctype = "application/json";
+                    js::json_value_handle json;
+                    json["return_cookie"] = rv->return_cookie;
+                    json["identity"] = rv->identity;
+                    body << json;
+            } else {
+                body = rv->error; 
+            }
+            clients_.async_restart(reqid, rv->code, http_status_description(rv->code), std::move(body), ctype );
+    }
+
+
    
 
 };
 
 
 #include "rp_sqlite.h"
+
+
+
+
+
+
+
+struct rp_initate_job {
+
+        rp_initiate_result::shared_ptr operator() ( const rp_initiate_request::shared_ptr& req, void* reqid ) {
+                    auto rp = make_rp_sqlite();
+                    rp_initiate_result res;
+                    try {
+                     res.login_url = rp->initalize(
+                                           req->client_id, 
+                                             req->identity, 
+                                             req->return_base_url, 
+                                             req->return_cookie );
+
+                     res.code = 200;
+                    } catch( std::exception& e ) {
+                        res.code = 500;
+                        res.error = e.what();
+                    }
+                    return rp_initiate_result::make_shared( std::move(res));
+        }
+};
+
+struct rp_confirm_job {
+
+        rp_confirm_result::shared_ptr operator() ( const rp_confirm_request::shared_ptr& req, void* reqid ) {
+                    auto rp = make_rp_sqlite();
+                    rp_confirm_result res;
+                    try {
+                            rp::result result = rp->confirm(
+                                           req->client_id, 
+                                           req->return_url 
+                                            );
+
+                     res.identity = result.identity;
+                     res.return_cookie = result.cookie;
+                     res.code = 200;
+                    } catch( std::exception& e ) {
+                        res.code = 500;
+                        res.error = e.what();
+                    }
+                    return rp_confirm_result::make_shared( std::move(res));
+        }
+};
+
 
 
 
@@ -245,6 +357,55 @@ myhttprequesthandler::handle_http_request( const http_srv_connection_ptr& c  )
                     cerr << e.what() << endl;
                  }
         }
+        else if ( reqtype == "initiate") {
+                 mem_stor_ptr body = req.body().load();
+                 std::string bodystr( body->data(), body->size() );
+                 try {
+                     
+                     js::json_value_handle json;
+                     bodystr >> json;
+
+                     void* reqid = clients_.insert(c);
+                     const auto rp_req = rp_initiate_request::make_shared();
+                     rp_req->client_id = std::string( json["client_id"] );
+                     rp_req->identity = std::string( json["identity"] );
+                     rp_req->return_base_url = std::string( json["return_base_url"] );
+                     rp_req->return_cookie = std::string( json["return_cookie"] );
+                     
+                     get_async_runner().async_run( 
+                                     rp_initate_job(), 
+                                     &myhttprequesthandler::handle_initiate_completion,   
+                                     rp_req,
+                                     reqid
+                                     );
+                 } catch ( std::exception& e ) {
+                    cerr << e.what() << endl;
+                 }
+        }
+        else if ( reqtype == "confirm") {
+                 mem_stor_ptr body = req.body().load();
+                 std::string bodystr( body->data(), body->size() );
+                 try {
+                     
+                     js::json_value_handle json;
+                     bodystr >> json;
+
+                     void* reqid = clients_.insert(c);
+                     const auto rp_req = rp_confirm_request::make_shared();
+                     rp_req->client_id = std::string( json["client_id"] );
+                     rp_req->return_url = std::string( json["return_url"] );
+                     
+                     get_async_runner().async_run( 
+                                     rp_confirm_job(), 
+                                     &myhttprequesthandler::handle_confirm_completion,   
+                                     rp_req,
+                                     reqid
+                                     );
+                 } catch ( std::exception& e ) {
+                    cerr << e.what() << endl;
+                 }
+        }
+
 }
 
 void 

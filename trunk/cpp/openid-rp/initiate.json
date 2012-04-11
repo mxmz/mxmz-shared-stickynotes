@@ -1,0 +1,6 @@
+{
+    "client_id": "bogognoga",
+    "identity": "http://maximalist.myopenid.com/",
+    "return_base_url": "http://localhost/test5",
+    "return_cookie": "tacchino"
+}
