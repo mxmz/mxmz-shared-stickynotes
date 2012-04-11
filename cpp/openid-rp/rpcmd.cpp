@@ -503,7 +503,6 @@ int main(int argc, char * argv[] ) {
         auto rv = rp->confirm(clientid,url );
         cout << rv.cookie << endl;
         cout << rv.identity << endl;
-        cout << rv.confirmed << endl;
 
     }
 

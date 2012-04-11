@@ -510,7 +510,9 @@ class rp_sqlite : public rp {
 	    cout << endl;
     
         rv.identity = om.get_field("identity");
-        rv.confirmed = om.get_field("mode") != "cancelled";
+        if ( om.get_field("mode") == "cancelled" ) {
+		    throw opkele::exception( OPKELE_CP_ "Authentication not confirmed");
+        }
         return rv;
      }
 
