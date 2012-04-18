@@ -11,15 +11,17 @@ using namespace std;
 #include <opkele/types.h>
 #include <opkele/util.h>
 #include <opkele/uris.h>
-#include <opkele/discovery.h>
+//#include <opkele/discovery.h>
 #include <opkele/association.h>
 #include <opkele/sreg.h>
 #include <opkele/oauth_ext.h>
 using namespace opkele;
 #include <opkele/prequeue_rp.h>
-#include <opkele/debug.h>
+//#include <opkele/debug.h>
 
+#define DOUT_(X) std::cerr << X << endl;
 #include "sqlite.h"
+
 
 #undef DUMB_RP
 

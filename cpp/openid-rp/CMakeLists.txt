@@ -70,7 +70,8 @@ INCLUDE_DIRECTORIES(
       ${Boost_FILESYSTEM_LIBRARY_RELEASE} 
       ${Boost_THREAD_LIBRARY_RELEASE} 
       ${Boost_DATE_TIME_LIBRARY_RELEASE} 
-
+	
+	${openidrp_LINK_FLAGS}
     )
 
 
@@ -80,12 +81,12 @@ SET_SOURCE_FILES_PROPERTIES( ${openidrpsrv_SRCs} PROPERTIES COMPILE_FLAGS "${ope
 
 
 ADD_EXECUTABLE( "openidrpcmd" ${openidrpcmd_SRCs} )
-SET_TARGET_PROPERTIES( "openidrpcmd" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAGS}" )
+#SET_TARGET_PROPERTIES( "openidrpcmd" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAGS}" )
 TARGET_LINK_LIBRARIES( "openidrpcmd" ${openidrp_LINK_LIBRARIES} )
  
 
 ADD_EXECUTABLE( "openidrpsrv" ${openidrpsrv_SRCs} )
-SET_TARGET_PROPERTIES( "openidrpsrv" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAGS}" )
+#SET_TARGET_PROPERTIES( "openidrpsrv" PROPERTIES LINK_FLAGS "${openidrp_LINK_FLAGS}" )
 TARGET_LINK_LIBRARIES( "openidrpsrv" ${openidrp_LINK_LIBRARIES} )
 
 
