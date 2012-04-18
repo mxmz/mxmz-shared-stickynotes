@@ -48,6 +48,8 @@
       httpresponse( httpresponse&& that ) {
             that.data.swap(data);
       }
+      
+      httpresponse( const httpresponse& that )  = default;
 
 
 	  virtual int code() const  { return data.code; }

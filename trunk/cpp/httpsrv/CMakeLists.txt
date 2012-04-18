@@ -2,8 +2,8 @@ PROJECT(httpsrv)
 #INCLUDE(../../../../cmake-build-tools/cmake/local_hostname.cmake)
 #INCLUDE(../../../cmake-local-config.cmake)
 
-SET(Boost_ADDITIONAL_VERSIONS "1.42" )
-#SET(Boost_ADDITIONAL_VERSIONS "1.49" )
+#SET(Boost_ADDITIONAL_VERSIONS "1.42" )
+#SET(Boost_ADDITIONAL_VERSIONS "1.46" )
 
 find_package( Boost  COMPONENTS system thread filesystem date_time )
    if(Boost_FOUND)

@@ -431,7 +431,7 @@ int http_server_main( short port, int argc, char* argv[] ) {
 	{
 		char port_s[100];
 		snprintf( port_s, 100, "%d", (int)port );
-		boost::shared_ptr<myhttprequesthandler> httphndl( new myhttprequesthandler( ios->io_service(),  doc_paths   ) );
+		boost::shared_ptr<myhttprequesthandler> httphndl( new myhttprequesthandler( ios->io_service(),  std::move(doc_paths)   ) );
 		boost::shared_ptr< http_server > httpsrv( new http_server( ios->io_service(), "0.0.0.0", port_s, httphndl ) );
 		ios->run();
 	}
